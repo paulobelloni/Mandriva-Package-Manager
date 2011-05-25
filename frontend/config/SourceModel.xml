@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mam version="2.0">
+    <model>
+        <source>
+            <item>
+                <title>Mandriva</title>
+                <icon>source-mandriva.png</icon>
+            </item>
+<!--
+            <item>
+                <title>Partners</title>
+                <icon>source-partners.png</icon>
+            </item>
+-->
+            <item>
+                <title>Community</title>
+                <icon>source-community.png</icon>
+            </item>
+        </source>
+    </model>
+</mam>

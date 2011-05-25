@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mam version="2.0">
+    <model>
+        <sort>
+<!--
+            <item>
+                <title>Feature</title>
+                <icon>sort-feature.png</icon>
+            </item>
+            <item>
+                <title>Popular</title>
+                <icon>sort-popular.png</icon>
+            </item>
+-->
+            <item>
+                <title>Name</title>
+                <icon>sort-name.png</icon>
+            </item>
+            <item>
+                <title>Date</title>
+                <icon>sort-date.png</icon>
+            </item>
+            <item>
+                <title>Size</title>
+                <icon>sort-size.png</icon>
+            </item>
+        </sort>
+    </model>
+</mam>

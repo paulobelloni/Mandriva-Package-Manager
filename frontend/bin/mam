@@ -1,0 +1,85 @@
+#!/usr/bin/python
+
+##
+## Copyright (C) 2010-2011 Mandriva S.A <http://www.mandriva.com>
+## All rights reserved
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU Lesser General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., or visit: http://www.gnu.org/.
+##
+## Author(s): Paulo Belloni <paulo@mandriva.com>
+##
+## NOTE: Based on jvdm (thanks!) code for mdvpkgd :)
+##
+##
+""" Script to run the mam application. """
+
+
+import logging
+import sys
+import os
+from optparse import OptionParser
+
+currentdir = os.path.dirname(os.path.abspath(sys.argv[0]))
+basedir = os.path.abspath(os.path.join(currentdir, '../..'))
+basename = os.path.basename(basedir)
+
+# Add the base directory to sys.path if we are running from package
+# directory (i.e. without installation):
+if basename == 'mam' or basename == 'mam-build-desktop':
+    mam_root_dir = basedir
+else:
+    mam_root_dir = '/usr/share/mandriva/mam'
+
+os.environ['MAM_ROOT_DIR'] = mam_root_dir
+sys.path.append(mam_root_dir)
+
+if not os.environ.get('QML_IMPORT_PATH'):
+    os.environ['QML_IMPORT_PATH'] = mam_root_dir
+
+# Parse command line arguments to configure and run mam ...
+parser = OptionParser()
+parser.add_option('--session',
+                  default=False,
+                  action='store_true',
+                  dest='session',
+                  help="Connect mam's DBus service to the session "
+                       "bus (instead of the system bus).")
+
+parser.add_option("-d", "--debug",
+                  default=False,
+                  action="store_true",
+                  dest="debug",
+                  help="Show debug messages and information.")
+
+opts, args = parser.parse_args()
+
+
+import dbus
+from backend.mdvpkg import mdvpkgqt
+if opts.session:
+    bus = dbus.SessionBus()
+else:
+    bus = dbus.SystemBus()
+mdvpkgqt.DbusProxy.initiateDbus(bus)
+
+
+logger = logging.getLogger(__name__)
+if opts.debug == True:
+    logger.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.INFO)
+
+from frontend import mam
+mam.start()
