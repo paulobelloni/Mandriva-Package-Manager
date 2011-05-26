@@ -64,7 +64,7 @@ Item {
                     color: "#597b90"
                 }
                 PropertyChanges {
-                    target: mam
+                    target: mpm
                     scrollbarFrozen: false  // Just to simplify things as this is temporary
                 }
             }
@@ -74,7 +74,7 @@ Item {
         }
 
         Connections {
-            target: mam
+            target: mpm
             onResetView: handle.y = 0;
         }
     }

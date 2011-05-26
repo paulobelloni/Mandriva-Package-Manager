@@ -20,7 +20,7 @@
 //
 //
 import QtQuick 1.0
-import components.qtdesktop.components 1.0 as QDESK
+import components 1.0 as QDESK
 
 ListView {
     id: list
@@ -40,7 +40,7 @@ ListView {
     model: XmlListModel {
         id: xml_model
         source: config.configDir + "MainBarModel.xml"
-        query: "/mam/model/toolbar/item"
+        query: "/mpm/model/toolbar/item"
 
         XmlRole { name: "title"; query: "title/string()" }
     }

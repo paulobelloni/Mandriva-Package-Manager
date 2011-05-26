@@ -20,7 +20,7 @@
 //
 //
 import QtQuick 1.0
-import components.qtdesktop.components 1.0 as QDESK
+import components 1.0 as QDESK
 
 Item {
     id: main_window
@@ -99,7 +99,7 @@ Item {
                 id: panel_builder
                 model: XmlListModel {
                     source: config.configDir + "FilterGroupsModel.xml";
-                    query: "/mam/model/filtergroups/item"
+                    query: "/mpm/model/filtergroups/item"
 
                     XmlRole { name: "title"; query: "title/string()" }
                 }
@@ -132,17 +132,17 @@ Item {
                             //helper function (or class).
 
                             if (panelTitle === 'Category')
-                                mam.currentCategory = markedItem;
+                                mpm.currentCategory = markedItem;
                             else if (panelTitle === 'Sort')
-                                mam.currentSort = markedItem;
+                                mpm.currentSort = markedItem;
                             else if (panelTitle === 'Source')
-                                mam.currentSource = markedItem;
+                                mpm.currentSource = markedItem;
                             else {
                                 console.log("ERROR: Unexpected panel: " + panelTitle);
                                 return;
                             }
 
-                            mam.reloadData();
+                            mpm.reloadData();
                         }
                     }
                     BorderImage {

@@ -20,15 +20,15 @@
 ##
 ##
 
-class MamException(Exception):
+class MpmException(Exception):
 
     def __init__(self, message):
         Exception.__init__(self)
         self.message = message
 
 
-class PackageMismatch(MamException):
+class PackageMismatch(MpmException):
 
     def __init__(self, *indexes):
-        MamException('Expected package %d, got %d' % indexes)
+        MpmException('Expected package %d, got %d' % indexes)
 

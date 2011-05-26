@@ -25,7 +25,7 @@ Row {
     spacing: 5
 
     Text {
-        text: mam.totalOfItems
+        text: mpm.totalOfItems
         horizontalAlignment: Text.AlignHCenter
         color: "white"
         opacity: 0.9

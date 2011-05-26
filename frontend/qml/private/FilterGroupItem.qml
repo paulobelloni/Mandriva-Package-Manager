@@ -26,7 +26,7 @@ VisualDataModel {
     property string filterGroupName
     model: XmlListModel {
          source: config.configDir + item.filterGroupName + "Model.xml"
-         query: "/mam/model/" + item.filterGroupName.toLowerCase() + "/item"
+         query: "/mpm/model/" + item.filterGroupName.toLowerCase() + "/item"
 
          XmlRole { name: "title"; query: "title/string()" }
          XmlRole { name: "icon"; query: "icon/string()" }

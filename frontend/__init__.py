@@ -27,19 +27,19 @@ __state__   = "development"
 __version__ = "0.1.0"
 
 MANDRIVA_DATA_DIR = '/usr/share/mandriva'
-DEFAULT_MAM_DIR = '%s/mam' % MANDRIVA_DATA_DIR
+DEFAULT_MPM_DIR = '%s/mpm' % MANDRIVA_DATA_DIR
 
-if os.environ['MAM_ROOT_DIR']:
-    MAM_ROOT_DIR = os.environ['MAM_ROOT_DIR']
+if os.environ['MPM_ROOT_DIR']:
+    MPM_ROOT_DIR = os.environ['MPM_ROOT_DIR']
 else:
-    MAM_ROOT_DIR = DEFAULT_MAM_DIR
+    MPM_ROOT_DIR = DEFAULT_MPM_DIR
 
-MAM_BACKEND_DIR = '%s/backend' % MAM_ROOT_DIR
-MAM_COMPONENTS_DIR = '%s/components' % MAM_ROOT_DIR
-MAM_FRONTEND_DIR = '%s/frontend' % MAM_ROOT_DIR
-MAM_QML_DIR = '%s/qml' % MAM_FRONTEND_DIR
-MAM_IMAGES_DIR = '%s/images' % MAM_FRONTEND_DIR
-MAM_CONFIG_DIR = '%s/config' % MAM_FRONTEND_DIR
+MPM_BACKEND_DIR = '%s/backend' % MPM_ROOT_DIR
+MPM_COMPONENTS_DIR = '%s/components' % MPM_ROOT_DIR
+MPM_FRONTEND_DIR = '%s/frontend' % MPM_ROOT_DIR
+MPM_QML_DIR = '%s/qml' % MPM_FRONTEND_DIR
+MPM_IMAGES_DIR = '%s/images' % MPM_FRONTEND_DIR
+MPM_CONFIG_DIR = '%s/config' % MPM_FRONTEND_DIR
 
 logger = logging.getLogger(__name__)
 #try:

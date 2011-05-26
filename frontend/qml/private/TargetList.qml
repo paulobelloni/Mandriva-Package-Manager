@@ -58,7 +58,7 @@ ListView {
     }
 
     Connections {
-        target: mam
+        target: mpm
         onResetView: target_list.resetList()
     }
 }

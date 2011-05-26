@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mam version="1.0">
+<mpm version="1.0">
     <model>
         <filtergroups>
             <item>
@@ -13,4 +13,4 @@
             </item>
         </filtergroups>
     </model>
-</mam>
+</mpm>

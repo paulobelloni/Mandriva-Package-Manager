@@ -24,14 +24,14 @@ import QtQuick 1.0
 Text {
     id: show_technicals
 
-    text: (mam.techItemsShown? "Hide" : "Show") + " technical items"
+    text: (mpm.techItemsShown? "Hide" : "Show") + " technical items"
     horizontalAlignment: Text.AlignHCenter
     color: "white"
-    opacity: mam.techItemsShown? 0.8 : 0.4
+    opacity: mpm.techItemsShown? 0.8 : 0.4
     font {
         pointSize: 9
         italic: true
-        underline: mam.techItemsShown
+        underline: mpm.techItemsShown
     }
 
     MouseArea {
@@ -40,8 +40,8 @@ Text {
         anchors.fill: parent
         hoverEnabled: true
         onClicked: {
-            mam.techItemsShown = !mam.techItemsShown;
-            mam.reloadData();
+            mpm.techItemsShown = !mpm.techItemsShown;
+            mpm.reloadData();
         }
 
         states: [
@@ -49,7 +49,7 @@ Text {
                 name: "hover"
                 when: tech_mouse.containsMouse && !tech_mouse.pressed
                 PropertyChanges {
-                    target: mamController
+                    target: mpmController
                     cursor: "Qt.PointingHandCursor"
                 }
             }

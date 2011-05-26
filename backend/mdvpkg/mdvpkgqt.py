@@ -37,7 +37,8 @@ import dbus.mainloop.glib
 from PySide import QtCore
 import sys
 from operator import attrgetter
-sys.path.append('/usr/share/mandriva/mdvpkg')
+#sys.path.append('/usr/share/mandriva/mdvpkg')
+sys.path.append('/mnt/LIB/MDV-chroot/usr/share/mandriva/mdvpkg')
 import mdvpkg
 import exceptions
 from qobjectclassfactory import QObjectClassFactory

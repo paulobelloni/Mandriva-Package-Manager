@@ -27,23 +27,23 @@ Column {
     spacing: 4
 
     function setStatus() {
-        mam.statusFilterNotInstalledEnabled = not_installed.enabled;
-        mam.statusFilterUpgradeEnabled = upgrade.enabled;
-        mam.statusFilterInstallingEnabled = installing.enabled;
-        mam.statusFilterInstalledEnabled = installed.enabled;
+        mpm.statusFilterNotInstalledEnabled = not_installed.enabled;
+        mpm.statusFilterUpgradeEnabled = upgrade.enabled;
+        mpm.statusFilterInstallingEnabled = installing.enabled;
+        mpm.statusFilterInstalledEnabled = installed.enabled;
 
-        mam.currentStatus = ""
+        mpm.currentStatus = ""
         if (not_installed.enabled) {
-            mam.currentStatus += not_installed.status + "|";
+            mpm.currentStatus += not_installed.status + "|";
         }
         if (upgrade.enabled) {
-            mam.currentStatus += upgrade.status + "|";
+            mpm.currentStatus += upgrade.status + "|";
         }
         if (installing.enabled) {
-            mam.currentStatus += installing.status + "|";
+            mpm.currentStatus += installing.status + "|";
         }
         if (installed.enabled) {
-            mam.currentStatus += installed.status + "|";
+            mpm.currentStatus += installed.status + "|";
         }
     }
 

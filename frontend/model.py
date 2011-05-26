@@ -30,16 +30,16 @@ from backend.mdvpkg.mdvpkgqt import Package, MdvPkgResult, MdvPkgQt
 
 logger = logging.getLogger(__name__)
 
-class MamPackage(Package):
+class MpmPackage(Package):
 
     def __init__(self, parent, index):
-        super(MamPackage, self).__init__(parent, index)
+        super(MpmPackage, self).__init__(parent, index)
         self._nfy_name.connect(self._nfy_icon)
 
     #FIXME: we need a better source for icons !!!!
     def _get_icon(self):
         iconName = self.name
-        if not iconName or not os.path.exists(frontend.MAM_IMAGES_DIR + iconName):
+        if not iconName or not os.path.exists(frontend.MPM_IMAGES_DIR + iconName):
             iconName = "default-icon.png"
         return iconName
 
@@ -48,26 +48,26 @@ class MamPackage(Package):
     icon = QtCore.Property(unicode, _get_icon, notify=_nfy_icon)
 
 
-class MamPkgResult(MdvPkgResult):
+class MpmPkgResult(MdvPkgResult):
     def __init__(self, parent, task, useServerCache):
-        super(MamPkgResult, self).__init__(parent, task, useServerCache)
+        super(MpmPkgResult, self).__init__(parent, task, useServerCache)
 
     def _create_package(self, idx):
-        return MamPackage(self, idx)
+        return MpmPackage(self, idx)
 
 
-class MamPkgQt(MdvPkgQt):
+class MpmPkgQt(MdvPkgQt):
     def __init__(self, parent):
-        super(MamPkgQt, self).__init__(parent)
+        super(MpmPkgQt, self).__init__(parent)
 
     def _create_result(self, task, useServerCache):
-        return MamPkgResult(self, task, useServerCache)
+        return MpmPkgResult(self, task, useServerCache)
 
 
 class packageModel(QtCore.QAbstractListModel):
     COLUMNS = ('package',)
     DEFAULT_SEARCH = {'filters':{}, 'sort': None}
-    NULL_PACKAGE=MamPackage(None, 0)
+    NULL_PACKAGE=MpmPackage(None, 0)
 
     def __init__(self, controller):
         super(packageModel, self).__init__(controller)
@@ -79,7 +79,7 @@ class packageModel(QtCore.QAbstractListModel):
         self._initiatePackageSource()
 
     def _initiatePackageSource(self):
-        self._packageSource = MamPkgQt(self)
+        self._packageSource = MpmPkgQt(self)
         self._packageSource.mdvpkgqt_ready.connect(self._on_mdvpkgqt_ready)
         self._packageSource.start()
 

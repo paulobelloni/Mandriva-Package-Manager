@@ -64,7 +64,7 @@ Item {
         onClicked: {
             disabled.visible = !disabled.visible;
             status_buttons.setStatus();
-            mam.reloadData();
+            mpm.reloadData();
         }
     }
 }

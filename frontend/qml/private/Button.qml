@@ -20,7 +20,7 @@
 //
 //
 import QtQuick 1.0
-import components.qtdesktop.components 1.0 as QDESK
+import components 1.0 as QDESK
 
 QDESK.Button {
     id: button

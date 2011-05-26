@@ -159,11 +159,11 @@ Rectangle {
                     id: item_status
 
                     function getImageSource(_status) {
-                        var _statusName = mam.mapStatus(_status);
+                        var _statusName = mpm.mapStatus(_status);
                         if (_statusName === "")
                             return "";
                         else {
-                            var _enabled = mam.statusEnabled(_status);
+                            var _enabled = mpm.statusEnabled(_status);
                             var _type = _enabled ? "enabled" : "disabled";
                             return config.imagesDir + _statusName + "-" + _type + ".png";
                         }
@@ -182,10 +182,10 @@ Rectangle {
                     HintArea {
                         visible: !target_list.movingVertically
                         anchors.fill: parent
-                        text: "Click to filter by " + mam.mapStatus(model.package.status)
+                        text: "Click to filter by " + mpm.mapStatus(model.package.status)
                         onClicked: {
-                            mam.currentStatus = model.package.status + '|';
-                            mam.reloadData();
+                            mpm.currentStatus = model.package.status + '|';
+                            mpm.reloadData();
                         }
                     }
                 }
@@ -222,8 +222,8 @@ Rectangle {
                             anchors.fill: parent
                             text: "Click to filter by " + model.package.source
                             onClicked: {
-                                mam.currentSource = model.package.source;
-                                mam.reloadData();
+                                mpm.currentSource = model.package.source;
+                                mpm.reloadData();
                             }
                         }
                     }
@@ -240,8 +240,8 @@ Rectangle {
                             anchors.fill: parent
                             text: "Click to filter by " + model.package.category
                             onClicked: {
-                                mam.currentCategory = model.package.category;
-                                mam.reloadData();
+                                mpm.currentCategory = model.package.category;
+                                mpm.reloadData();
                             }
                         }
                     }

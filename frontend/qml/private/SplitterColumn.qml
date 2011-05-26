@@ -20,22 +20,26 @@
 //
 //
 import QtQuick 1.0
+import components 1.0 as QDESK
+//import components.custom as QCUSTOM
 
-MouseArea {
-    id: hint_area
-    property string text: "Hint"
-    property int interval: config._DEFAULT_HINT_INTERVAL
+Item {
+    QDESK.QStyleItem {
+        id: styleitem
+        elementType: "splitter"
+        width: pixelMetric("splitterwidth")
 
-    hoverEnabled: true
-    onEntered: hint.show(hint_area, mouseX, mouseY, text, interval)
-    states: [
-        State {
-            name: "hover"
-            when: hint_area.containsMouse
-            PropertyChanges {
-                target: mpmController
-                cursor: "Qt.PointingHandCursor"
+        MouseArea {
+            anchors.fill: parent
+            anchors.leftMargin: (parent.width <= 1) ? -2 : 0
+            anchors.rightMargin: (parent.width <= 1) ? -2 : 0
+            drag.axis: Qt.XAxis
+            drag.target: handle
+
+            QDESK.QStyleItem {
+                anchors.fill: parent
+                cursor: "splithcursor"
             }
         }
-    ]
+    }
 }
