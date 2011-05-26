@@ -1,19 +1,35 @@
-- This is a tech preview (pre-pre-alpha) for the new "MPM".
-- Be aware that even the name is a preview. :)
+NOTES
+
+- This is a tech preview (pre-pre-alpha) for the new Mandriva Package Manager,
+  MPM.
 - Currently it has only basic search (and filters) capabilities.
-No install/remove/update is available yet.
+  No install/remove/update is available yet.
 - It is crashing sometimes. We are investigating, but it seems to
-be related to qt-desktop/'libqtdeclarative' issues.
+  be related to qt-desktop/'libqtdeclarative' issues.
 - The scrollbar implemented is meant to be temporary, so it is far
-from perfect, lacking sync with Flikable and better Model reset.
-The application may freeze sometimes due lost of sync with Model when
-using the scrollbar.
+  from perfect, lacking sync with Flikable and better Model reset.
+  The application may freeze sometimes due lost of sync with Model when
+  using the scrollbar.
 - Themes and layout are and investigation too, so do not worry if it
-seems 'ugly' or terribly formed. But do not hesitate to give us a
-feedback, so you can help us to improve it.
+  seems 'ugly' or terribly malformed. But do not hesitate to give us a
+  feedback, so you can help us to improve it.
 - The Advanced and Settings pages are not implemented yet.
 - Also, we do not have a details page yet.
 
-If you find something wrong, just let us know.
-Thanks,
-Paulo - paulo@mandriva.com
+  If you find something wrong, just let us know.
+  Thanks,
+  Paulo - paulo@mandriva.com
+
+DEPENDENCIES
+
+* To be able to test it you need to install the following packages:
+- qt-components-desktop-20110526-1
+- Get the source package mdvpkg-0.5.1-0.src.rpm at
+  'http://kenobi.mandriva.com/~jvdm/'
+
+HOW TO RUN
+
+- first, as root, you will need to run the daemon /usr/sbin/mdvpkgd
+- after that, run 'frontend/bin/mam' from the root of the
+  Mandriva-Package-Manager - or mpm - directory you installed the sources.
+
