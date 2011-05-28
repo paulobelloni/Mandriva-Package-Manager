@@ -212,7 +212,7 @@ Rectangle {
                     Item {
                         id: item_source_icon
                         z: target_item.z + 2
-                        visible: target_item.isCurrentItem
+                        visible: target_item.isCurrentItem && !target_list.movingVertically
                         width: height
                         height: config._LIST_ITEM_SOURCE_ICON_SIZE
                         //anchors.verticalCenter: parent.verticalCenter
@@ -230,7 +230,7 @@ Rectangle {
                     Item {
                         id: item_category_icon
                         z: target_item.z + 2
-                        visible: target_item.isCurrentItem
+                        visible: target_item.isCurrentItem && !target_list.movingVertically
                         width: height
                         height: config._LIST_ITEM_CATEGORY_ICON_SIZE
                         //anchors.verticalCenter: parent.verticalCenter
