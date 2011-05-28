@@ -37,7 +37,9 @@ basename = os.path.basename(basedir)
 
 # Add the base directory to sys.path if we are running from package
 # directory (i.e. without installation):
-if basename == 'mpm' or basename == 'Mandriva-Package-Manager':
+if basename == 'mpm' \
+   or basename == 'Mandriva-Package-Manager'  \
+   or basename == 'mpm-build-desktop':
     mpm_root_dir = basedir
 else:
     mpm_root_dir = '/usr/share/mandriva/mpm'
@@ -46,7 +48,6 @@ os.environ['MPM_ROOT_DIR'] = mpm_root_dir
 sys.path.append(mpm_root_dir)
 
 if not os.environ.get('QML_IMPORT_PATH'):
-#    os.environ['QML_IMPORT_PATH'] = mpm_root_dir
     os.environ['QML_IMPORT_PATH'] = '/usr/share/mandriva/qt-components/desktop'
 
 # Parse command line arguments to configure and run mpm ...
