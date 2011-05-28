@@ -170,7 +170,6 @@ def start():
     view.setViewport(widget)
     window.setCentralWidget(view)
     view.setResizeMode(QtDeclarative.QDeclarativeView.SizeRootObjectToView)
-    view.setWindowTitle("Mandriva Application Manager")
 
     rc = view.rootContext()
     mpm_controller = MPMcontroller(rc, window)
@@ -182,6 +181,7 @@ def start():
     window.move(300,150)
     window.resize(900,600)
     window.setMinimumSize(900, 600)
+    window.setWindowTitle("Mandriva Package Manager")
     window.show()
     app.exec_()
 
