@@ -28,7 +28,7 @@ Item {
         id: main_left_panel
         width: config._LEFTPANEL_WIDTH
         anchors {
-            top: menu_area.bottom
+            top: toolbar_area.bottom
             bottom: parent.bottom
             left:  parent.left
         }
@@ -200,7 +200,7 @@ Item {
     TargetPanel {
         id: target_panel
         anchors {
-            top: menu_area.bottom
+            top: toolbar_area.bottom
             bottom: status_area.top
             left: separator.right
             right: parent.right
@@ -220,28 +220,29 @@ Item {
         x: config._LEFTPANEL_WIDTH
         width: config._SEPARATOR_WIDTH
         anchors {
-            top: menu_area.bottom
+            top: toolbar_area.bottom
             bottom: parent.bottom
         }
     }
     Item {
-        id: menu_area
+        id: toolbar_area
         width: parent.width
         height: config._TOOLBAR_HEIGHT
         ToolBar {
-            id: main_menu
+            id: toolbar
             anchors.fill: parent
             Row {
                 id: navigation_buttons
                 spacing: 0
                 anchors.verticalCenter: parent.verticalCenter
-                QDESK.ToolButton{
+                height: parent.height * 0.8
+                QDESK.ToolButton {
                     id: back
                     property Item targetPanel
                     enabled: false
                     opacity: enabled? 1 : 0.2
                     width: height
-                    height: main_menu.height * 0.9
+                    height: parent.height
                     text: "Back"
                     iconSource: config._THEME_ICONS + config._PREVIOUS_ICON
                     states: [
@@ -270,13 +271,13 @@ Item {
                         next.enabled = true;
                     }
                 }
-                QDESK.ToolButton{
+                QDESK.ToolButton {
                     id: next
                     property Item targetPanel
                     enabled: false
                     opacity: enabled? 1 : 0.3
                     width: height
-                    height: back.height
+                    height: parent.height
                     text: "Next"
                     iconSource: config._THEME_ICONS + config._NEXT_ICON
                     onClicked: {
@@ -285,41 +286,41 @@ Item {
                     }
                 }
                 Component.onCompleted: {
-                    x = (config._LEFTPANEL_WIDTH - width)/2;
+                    x = (main_left_panel.width - width)/2;
                 }
             }
-            BorderImage {
-                id: toolbar_items_group
-                anchors.verticalCenter: parent.verticalCenter
-                width: config._TOOLBARITEMS_WITH
-                height: parent.height * 0.8
-                source: config.imagesDir + "rail.png"
-                ToolBarItems {
-                    id: main_menu_items
-                    anchors {
-                        fill: parent
-                        leftMargin: 2
-                        rightMargin: 2
-                    }
-                }
+            Item {
+                id: separator_place_holder
                 Component.onCompleted: {
-                    x = config._LEFTPANEL_WIDTH + separator.width;
+                    x = main_left_panel.width;
                 }
             }
             SearchBox {
                 id: search_box
                 anchors {
                     verticalCenter: parent.verticalCenter
-                    left: toolbar_items_group.right
-                    leftMargin: 40
-                    right: parent.right
-                    rightMargin: 5
+                    left: separator_place_holder.right
+                    right: settings.left
+                    rightMargin: 10
                 }
-                width: config._SEARCHBOX_WITH
-                height: main_menu_items.height
+                height: navigation_buttons.height
 
                 onTextChanged: {
                     controllerData.pattern = text;
+                }
+            }
+            QDESK.ToolButton {
+                id: settings
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    right: parent.right
+                    rightMargin: 10
+                }
+                width: height
+                height: navigation_buttons.height
+                text: "Settings"
+                iconSource: config._THEME_ICONS + config._SETTINGS_ICON
+                onClicked: {
                 }
             }
         }

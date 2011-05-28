@@ -47,18 +47,12 @@ FocusScope {
             rightMargin: 100
         }
 
-        Column {
-            spacing: 1
+        TotalOfMatches {
             anchors {
                 verticalCenter: parent.verticalCenter
             }
-
-            TotalOfMatches {
-            }
-
-            TechnicalToggler {
-            }
         }
+
         StatusFilter {
             anchors {
                 verticalCenter: parent.verticalCenter

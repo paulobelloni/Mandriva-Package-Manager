@@ -149,6 +149,7 @@ LayoutItem {
         property string _NEXT_ICON: "go-next"
         property string _UPDATE_ICON: "go-bottom"
         property string _NO_IMAGE: "no-image"
+        property string _SETTINGS_ICON: "preferences-system"
     }
 
     QtObject {
