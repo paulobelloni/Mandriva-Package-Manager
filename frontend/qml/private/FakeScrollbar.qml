@@ -31,7 +31,7 @@ Item {
     property double _pathSize: scrollbar.height - handle.height
     property double _pathRatio: _pathSize > 0? maximumValue/_pathSize : 1
 
-    signal handlePosChanged(int pos)
+    signal handlePosChanged(real pos)
 
     width: 12
     Rectangle {
@@ -63,6 +63,11 @@ Item {
                     target: handle
                     color: "#597b90"
                 }
+            },
+            State {
+                name: "pressed"
+                when: mouse_area.pressed
+                extend: "hovering"
                 PropertyChanges {
                     target: mpm
                     scrollbarFrozen: false  // Just to simplify things as this is temporary
