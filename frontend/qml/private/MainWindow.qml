@@ -160,42 +160,42 @@ Item {
                 recalculateChildrenHeight();
             }
         }
-// This to help decide where to put the status buttons
-//        Column {
-//            id: status_filter
-//            spacing: 8
-//            anchors {
-//                horizontalCenter: parent.horizontalCenter
-//                bottom: parent.bottom
-//                bottomMargin: 4
-//            }
-//            BorderImage {
-//                width: main_left_panel.width/2
-//                height: 2
-//                opacity: 0.3
-//                source: config.imagesDir + "track.png"
-//                anchors {
-//                    horizontalCenter: parent.horizontalCenter
-//                }
-//            }
-//            Text {
-//                text: "Status"
-//                height: font.pointSize + 4 // 4 for bold
-//                color: config._LEFTPANEL_FONT_COLOR
-//                font {
-//                    italic: true
-//                    pointSize: 11
-//                }
-//                anchors {
-//                    horizontalCenter: parent.horizontalCenter
-//                }
-//            }
-//            StatusFilter {
-//                anchors {
-//                    horizontalCenter: parent.horizontalCenter
-//                }
-//            }
-//        }
+        // This to help decide where to put the status buttons
+        //        Column {
+        //            id: status_filter
+        //            spacing: 8
+        //            anchors {
+        //                horizontalCenter: parent.horizontalCenter
+        //                bottom: parent.bottom
+        //                bottomMargin: 4
+        //            }
+        //            BorderImage {
+        //                width: main_left_panel.width/2
+        //                height: 2
+        //                opacity: 0.3
+        //                source: config.imagesDir + "track.png"
+        //                anchors {
+        //                    horizontalCenter: parent.horizontalCenter
+        //                }
+        //            }
+        //            Text {
+        //                text: "Status"
+        //                height: font.pointSize + 4 // 4 for bold
+        //                color: config._LEFTPANEL_FONT_COLOR
+        //                font {
+        //                    italic: true
+        //                    pointSize: 11
+        //                }
+        //                anchors {
+        //                    horizontalCenter: parent.horizontalCenter
+        //                }
+        //            }
+        //            StatusFilter {
+        //                anchors {
+        //                    horizontalCenter: parent.horizontalCenter
+        //                }
+        //            }
+        //        }
     }
     TargetPanel {
         id: target_panel
@@ -288,33 +288,30 @@ Item {
                     x = (config._LEFTPANEL_WIDTH - width)/2;
                 }
             }
-            Item {
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    left: navigation_buttons.right
-                    right: search_box.left
-                }
-                BorderImage {
-                    anchors.centerIn: parent
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: config._TOOLBARITEMS_WITH
-                    height: parent.height * 0.8
-                    source: config.imagesDir + "rail.png"
-                    ToolBarItems {
-                        id: main_menu_items
-                        anchors {
-                            fill: parent
-                            leftMargin: 2
-                            rightMargin: 2
-                        }
+            BorderImage {
+                id: toolbar_items_group
+                anchors.verticalCenter: parent.verticalCenter
+                width: config._TOOLBARITEMS_WITH
+                height: parent.height * 0.8
+                source: config.imagesDir + "rail.png"
+                ToolBarItems {
+                    id: main_menu_items
+                    anchors {
+                        fill: parent
+                        leftMargin: 2
+                        rightMargin: 2
                     }
+                }
+                Component.onCompleted: {
+                    x = config._LEFTPANEL_WIDTH + separator.width;
                 }
             }
             SearchBox {
                 id: search_box
                 anchors {
                     verticalCenter: parent.verticalCenter
+                    left: toolbar_items_group.right
+                    leftMargin: 40
                     right: parent.right
                     rightMargin: 5
                 }
