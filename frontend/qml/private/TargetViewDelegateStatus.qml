@@ -31,7 +31,8 @@ Item {
             else {
                 var _enabled = mpm.statusEnabled(_status);
                 var _type = _enabled ? "enabled" : "disabled";
-                return config.imagesDir + _status + "-" + _type + ".png";
+                var _name = "status-" + _status.toLowerCase();// + "-" + _type; //FIXME - We should take type too
+                return config.iconsDir + _name + ".png";
             }
         }
 
