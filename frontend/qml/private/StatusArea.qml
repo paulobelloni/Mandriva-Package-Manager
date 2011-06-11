@@ -21,42 +21,21 @@
 //
 import QtQuick 1.0
 
-FocusScope {
-    focus:  false
+SplitterColumn {
+    id: status_area
+    property alias totalVisible: total.visible
 
     Rectangle {
         anchors.fill: parent
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: config._STATUSBAR_BACKGROUND_INITIAL_COLOR
-            }
-            GradientStop {
-                position: 1
-                color: config._STATUSBAR_BACKGROUND_FINAL_COLOR
-            }
-        }
+        color:  syspal.dark
     }
 
-    Row {
-        spacing: 50
+    TotalOfMatches {
+        id: total
         anchors {
-            top: parent.top
-            bottom: parent.bottom
-            right: parent.right
-            rightMargin: 100
-        }
-
-        TotalOfMatches {
-            anchors {
-                verticalCenter: parent.verticalCenter
-            }
-        }
-
-        StatusFilter {
-            anchors {
-                verticalCenter: parent.verticalCenter
-            }
+            left: parent.left
+            leftMargin: 10
+            verticalCenter: parent.verticalCenter
         }
     }
 }

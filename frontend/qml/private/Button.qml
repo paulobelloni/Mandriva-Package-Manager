@@ -25,37 +25,22 @@ import components 1.0 as QDESK
 QDESK.Button {
     id: button
     property int fontPixelSize: 10
+    property int iconWidth: iconHeight
+    property int iconHeight: height * 0.8
     property bool hover: containsMouse
     property variant style: Text.Normal
 
-    background: QDESK.QStyleItem {
-        id: styleitem
-        anchors.fill: parent
-        elementType: "button"
-        sunken: pressed
-        raised: !pressed
-        hover: button.hover
-        text: iconSource === "" ? button.text : ""  // PBelloni - bugfix
-        focus: button.focus
-        hint: button.hint
-        activeControl: focus ? "default" : ""
-        Connections{
-            target: button
-            onToolTipTriggered: styleitem.showTip()
-        }
-        function showTip(){
-            showToolTip(tooltip);
-        }
-    }
     label: Item {
+        visible: button.iconSource != ""
         Row {
             id: row
             anchors.centerIn: parent
             spacing: 4
             Image {
-                visible: button.iconSource !== ""; // PBelloni - bugfix
                 source: button.iconSource
                 anchors.verticalCenter: parent.verticalCenter
+                width: button.iconWidth
+                height: button.iconHeight
                 fillMode: Image.Stretch //mm Image should shrink if button is too small, depends on QTBUG-14957
             }
             Text {

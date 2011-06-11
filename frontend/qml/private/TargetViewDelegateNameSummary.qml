@@ -22,7 +22,30 @@
 import QtQuick 1.0
 
 Item {
-    property int activeHeight: 0
-    property int inactiveHeight: 0
-    property int preferredHeight: 0
+    Column {
+        anchors.fill: parent
+        Text {
+            text: {
+                if (itemValue[0])
+                    return itemValue[0];
+                else
+                    return "waiting...";
+            }
+            width: parent.width
+            height: parent.height/2
+            elide: Text.ElideRight
+            verticalAlignment: Text.AlignVCenter
+            font {
+                pointSize: 12
+                bold: true
+            }
+        }
+        Text {
+            width: parent.width
+            height: parent.height/2
+            text: itemValue[1]? itemValue[1] : ""
+            elide: Text.ElideRight
+            verticalAlignment: Text.AlignVCenter
+        }
+    }
 }

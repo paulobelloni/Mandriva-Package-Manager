@@ -25,7 +25,7 @@ ListView {
     property alias filterGroupName: item.filterGroupName
 
     spacing: 8
-    //clip: true
+    clip: true
     interactive: false
     highlightFollowsCurrentItem: false
     model: FilterGroupItem {
@@ -36,7 +36,7 @@ ListView {
         width: ListView.view? ListView.view.width - 5 : 0
         visible: false
         color: config._LEFTPANEL_HIGHLIGHT_COLOR
-        opacity: 0.3
+        //opacity: 0.3
         Behavior on y {
             SpringAnimation {
                 spring: 3

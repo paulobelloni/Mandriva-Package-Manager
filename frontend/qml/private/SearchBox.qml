@@ -41,6 +41,8 @@ FocusScope {
         source: config._THEME_ICONS + config._EDIT_FIND_ICON
         width: height
         height: parent.height * 0.6
+        smooth: true
+        asynchronous: true
         anchors {
             left: parent.left
             leftMargin: 4
@@ -53,6 +55,8 @@ FocusScope {
         source: config._THEME_ICONS + config._EDIT_CLEAR_ICON
         width: height
         height: parent.height * 0.6
+        smooth: true
+        asynchronous: true
         anchors {
             right: parent.right
             rightMargin: 2

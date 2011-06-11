@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mpm version="1.0">
+    <model>
+        <tableview_column>
+            <item>
+                <title>Status</title>
+                <property>status</property>
+                <width>50</width>
+            </item>
+            <item>
+                <title>Name/Summary</title>
+                <property>name_summary</property>
+                <width>300</width>
+            </item>
+            <item>
+                <title>Version</title>
+                <property>version</property>
+                <width>50</width>
+            </item>
+            <item>
+                <title>Size</title>
+                <property>size</property>
+                <width>50</width>
+            </item>
+        </tableview_column>
+    </model>
+</mpm>

@@ -21,24 +21,34 @@
 //
 import QtQuick 1.0
 import components 1.0 as QDESK
-//import components.custom as QCUSTOM
 
-Item {
+QDESK.QStyleItem {
+    id: splitter
+    property int minimumY: 0
+    property int maximumY: 0
+
+    elementType: "frame"
     QDESK.QStyleItem {
-        id: styleitem
+        id: handle
+        anchors.centerIn: parent
         elementType: "splitter"
-        width: pixelMetric("splitterwidth")
+        horizontal: false
+        z: parent.z + 1
+        width: 35
+        height: 5
 
         MouseArea {
             anchors.fill: parent
-            anchors.leftMargin: (parent.width <= 1) ? -2 : 0
-            anchors.rightMargin: (parent.width <= 1) ? -2 : 0
-            drag.axis: Qt.XAxis
-            drag.target: handle
+            drag {
+                axis: Drag.YAxis
+                minimumY: splitter.minimumY
+                maximumY: splitter.maximumY
+                target: splitter
+            }
 
             QDESK.QStyleItem {
                 anchors.fill: parent
-                cursor: "splithcursor"
+                cursor: "splitvcursor"
             }
         }
     }

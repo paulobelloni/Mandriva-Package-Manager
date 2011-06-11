@@ -30,30 +30,12 @@ from backend.mdvpkg.mdvpkgqt import Package, MdvPkgResult, MdvPkgQt
 
 logger = logging.getLogger(__name__)
 
-class MpmPackage(Package):
-
-    def __init__(self, parent, index):
-        super(MpmPackage, self).__init__(parent, index)
-        self._nfy_name.connect(self._nfy_icon)
-
-    #FIXME: we need a better source for icons !!!!
-    def _get_icon(self):
-        iconName = self.name
-        if not iconName or not os.path.exists(frontend.MPM_IMAGES_DIR + iconName):
-            iconName = "default-icon.png"
-        return iconName
-
-    _nfy_icon = QtCore.Signal()
-
-    icon = QtCore.Property(unicode, _get_icon, notify=_nfy_icon)
-
-
 class MpmPkgResult(MdvPkgResult):
     def __init__(self, parent, task, useServerCache):
         super(MpmPkgResult, self).__init__(parent, task, useServerCache)
 
     def _create_package(self, idx):
-        return MpmPackage(self, idx)
+        return Package(self, idx)
 
 
 class MpmPkgQt(MdvPkgQt):
@@ -67,7 +49,7 @@ class MpmPkgQt(MdvPkgQt):
 class packageModel(QtCore.QAbstractListModel):
     COLUMNS = ('package',)
     DEFAULT_SEARCH = {'filters':{}, 'sort': None}
-    NULL_PACKAGE=MpmPackage(None, 0)
+    NULL_PACKAGE=Package(None, 0)
 
     def __init__(self, controller):
         super(packageModel, self).__init__(controller)
@@ -90,16 +72,15 @@ class packageModel(QtCore.QAbstractListModel):
     @QtCore.Slot()
     def _on_result_ready(self):
         self._count = self._result.count
-        if self._searchData['sort']:
-            self._result.sort(self._searchData['sort'])
+        sort = self._searchData['sort']
+        if  sort and sort[0]:
+            self._result.sort(*sort)
         self._totalOfMatches_changed.emit()
         self.modelReset.emit()
-        self._controller.target_list.resetList()
 
     def search(self, searchData):
         if searchData == self._searchData:
             return
-        self._controller.target_list.resetList() # reinforcing the reset, but still getting frozen window
         self._result.result_ready.disconnect()
         self._result.release()
         self._searchData = searchData

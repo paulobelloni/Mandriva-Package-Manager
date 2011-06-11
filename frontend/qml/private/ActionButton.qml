@@ -26,14 +26,22 @@ Item {
     property alias color: foreground.color
     property alias fgOpacity: foreground.opacity
     property alias hover: button.hover
+    property alias iconSource: button.iconSource
+    property alias iconWidth: button.iconWidth
+    property alias iconHeight: button.iconHeight
+
     Button {
         id: button
         anchors.fill: parent
     }
+
     Rectangle {
         id: foreground
-        anchors.fill: parent
-        anchors.margins: 2
+        anchors {
+            fill: parent
+            margins: 2
+        }
+        opacity: 0.3
         color: "transparent"
     }
 }

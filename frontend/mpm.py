@@ -22,6 +22,9 @@
 import sys
 import os
 import logging
+import locale
+locale.setlocale(locale.LC_ALL, '')
+
 from PySide import QtGui, QtCore
 from PySide import QtDeclarative
 
@@ -30,14 +33,14 @@ from model import packageModel
 
 logger = logging.getLogger(__name__)
 
+
 class MPMcontroller(QtCore.QObject):
     FILTER_MAP={
         'category': 'categories',
         'pattern': 'patterns',
         'sort': 'sort',
         'source': 'source',
-        'statuses': 'statuses',
-        'technical': 'includeTechnicalItems'
+        'statuses': 'statuses'
     }
     SORT_MAP={
         'Date': 'installtime',
@@ -48,7 +51,6 @@ class MPMcontroller(QtCore.QObject):
     def __init__(self, rootContext, window):
         super(MPMcontroller, self).__init__()
         self._window = window
-        self._target_list = None
         self._model = packageModel(self)
         rootContext.setContextProperty('packageModel', self._model)
 
@@ -67,25 +69,49 @@ class MPMcontroller(QtCore.QObject):
         filters[MPMcontroller.FILTER_MAP['source']] = \
             rawData.property('source') or None
 
-        filters[MPMcontroller.FILTER_MAP['statuses']] = \
-            rawData.property('status').split('|')[:-1] or None
+        status = rawData.property('status')
+        if  status and status[0] == '|':
+            filters[MPMcontroller.FILTER_MAP['statuses']] = \
+                status.split('|')[:-1] or None
+        else:
+            filters[MPMcontroller.FILTER_MAP['statuses']] = \
+                (status,) or None
 
-        filters[MPMcontroller.FILTER_MAP['technical']] = \
-            rawData.property('technical') or None
+        sort = (MPMcontroller.SORT_MAP.get(rawData.property('sort')),
+                rawData.property('sortDirection') == 'up')
 
         searchData = {
             'filters': filters,
-            'sort'   : MPMcontroller.SORT_MAP.get(rawData.property('sort'))
+            'sort'   : sort
         }
         self._model.search(searchData)
 
     def setRootObject(self, root):
         self._rootObj = root
 
-    def _get_target_list(self):
-        if not self._target_list:
-            self._target_list = self._rootObj.findChild(QtCore.QObject, "target_list")
-        return self._target_list
+    @QtCore.Slot(int, result=str)
+    def pretty_value(self, value):
+        """Based on a recipe from Eugeni. Tks! :) """
+        return locale.format("%d", value, grouping=True)
+
+    @QtCore.Slot(int, int, result=str)
+    def humanize_size(self, bytes, precision=1):
+        """Return a humanized string representation of a number of bytes.
+           Based on Doug Latornell's humanize_bytes recipes. Tks! :) """
+        abbrevs = (
+            (1<<50L, 'PB'),
+            (1<<40L, 'TB'),
+            (1<<30L, 'GB'),
+            (1<<20L, 'MB'),
+            (1<<10L, 'kB'),
+            (1, 'bytes')
+        )
+        if bytes == 1:
+            return '1 byte'
+        for factor, suffix in abbrevs:
+            if bytes >= factor:
+                break
+        return '%.*f %s' % (precision, float(bytes) / factor, suffix)
 
     @QtCore.Slot(int, int, int, int)
     def moveWindow(self, x, y, px, py):
@@ -107,6 +133,10 @@ class MPMcontroller(QtCore.QObject):
 
     def _get_cursor(self):
         return self._window.cursor()
+
+    @QtCore.Slot(int, int)
+    def setMinimumSize(self, width, height):
+        self._window.setMinimumSize(width, height)
 
     @QtCore.Slot()
     def closeWindow(self):
@@ -144,17 +174,13 @@ class MPMcontroller(QtCore.QObject):
     def hideSystemFrame(self, point):
         self._toggleWindowFlag(QtCore.Qt.FramelessWindowHint)
 
-    _nfy_frontendDir = QtCore.Signal()
-
-    @QtCore.Slot()
-    def _get_frontendDir(self):
+    @QtCore.Slot(result=str)
+    def getRootDir(self):
         return frontend.MPM_FRONTEND_DIR
 
     cursor = QtCore.Property(str, _get_cursor,
                         _set_cursor, notify=_cursor_changed)
 
-    frontendDir = QtCore.Property(str, _get_frontendDir, notify=_nfy_frontendDir)
-    target_list = QtCore.Property(QtCore.QObject, _get_target_list)
 
 def start():
     mainQML = '%s/%s' % (frontend.MPM_QML_DIR,
@@ -164,25 +190,17 @@ def start():
         quit()
 
     app = QtGui.QApplication(sys.argv)
-    window = QtGui.QMainWindow()
     view = QtDeclarative.QDeclarativeView()
-    widget = QtGui.QWidget()
-    view.setViewport(widget)
-    window.setCentralWidget(view)
     view.setResizeMode(QtDeclarative.QDeclarativeView.SizeRootObjectToView)
+    view.setWindowTitle("Mandriva Package Manager")
 
     rc = view.rootContext()
-    mpm_controller = MPMcontroller(rc, window)
+    mpm_controller = MPMcontroller(rc, view)
     rc.setContextProperty('mpmController', mpm_controller)
-
     view.setSource(mainQML)
     mpm_controller.setRootObject(view.rootObject())
 
-    window.move(300,150)
-    window.resize(900,600)
-    window.setMinimumSize(900, 600)
-    window.setWindowTitle("Mandriva Package Manager")
-    window.show()
+    view.show()
     app.exec_()
 
 if __name__ == '__main__':

@@ -4,12 +4,15 @@
         <filtergroups>
             <item>
                 <title>Category</title>
+                <position>0.0</position>
             </item>
             <item>
-                <title>Sort</title>
+                <title>Status</title>
+                <position>0.5</position>
             </item>
             <item>
                 <title>Source</title>
+                <position>0.8</position>
             </item>
         </filtergroups>
     </model>

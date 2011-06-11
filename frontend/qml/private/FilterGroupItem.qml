@@ -33,6 +33,8 @@ VisualDataModel {
     }
     delegate: Item {
         id: template
+        property bool isMarkedItem: panel.markedItem == model.title
+
         width: ListView.view.width
         height: childrenRect.height
         Row {
@@ -42,12 +44,14 @@ VisualDataModel {
                 width: template.height
                 height: width
                 source: config.iconsDir + model.icon
+                smooth: true
+                asynchronous: true
             }
             Text {
                 id: item_label
                 text: model.title
-                color: config._LEFTPANEL_FONT_COLOR
-                style: Text.Raised // shadow
+                color: isMarkedItem? config._LEFTPANEL_MARKED_FONT_COLOR : config._LEFTPANEL_FONT_COLOR
+                style: isMarkedItem? Text.Normal : Text.Raised // shadow
                 font {
                     pointSize: 10
                     bold: true
@@ -55,7 +59,7 @@ VisualDataModel {
                 states: [
                     State {
                         name: "hovering"
-                        when: mouse_area.containsMouse
+                        when: mouse_area.containsMouse && !isMarkedItem
                         PropertyChanges {
                             target: item_label
                             color: syspal.highlight
@@ -69,8 +73,8 @@ VisualDataModel {
             id: mouse_area
             anchors.fill: parent
             hoverEnabled: true
-            onClicked: {
-                if (panel.markedItem !== model.title) {
+            onPressed: {
+                if (!isMarkedItem) {
                     panel.markedItem = model.title;
                     ListView.view.highlightItem.visible = true;
                     ListView.view.highlightItem.y = template.y;

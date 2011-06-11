@@ -27,7 +27,7 @@ Row {
     Text {
         text: mpm.totalOfItems
         horizontalAlignment: Text.AlignHCenter
-        color: "white"
+        color: syspal.light
         opacity: 0.9
         font {
             pointSize: 9
@@ -37,10 +37,10 @@ Row {
     }
 
     Text {
-        text: "items available"
+        text: "packages available"
         horizontalAlignment: Text.AlignHCenter
-        color: "white"
         opacity: 0.8
+        color: syspal.light
         font {
             pointSize: 9
             italic: true

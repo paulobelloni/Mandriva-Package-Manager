@@ -20,14 +20,8 @@
 //
 //
 import QtQuick 1.0
+import components 1.0 as QDESK
 
-Rectangle {
-    FocusScope {
-        anchors.fill: parent
-    }
-    color: config._TOOLBAR_BACKGROUND_COLOR
-    border {
-        width: 1
-        color: "lightgray"
-    }
+QDESK.ToolBar {
+    property color color
 }

@@ -18,30 +18,16 @@
 //
 // Author(s): Paulo Belloni <paulo@mandriva.com>
 //
+//      NOTE: This is based on the homonimous element defined on qt-components-desktop
 //
 import QtQuick 1.0
+import components 1.0 as QDESK
 
-//Loader {
-Item {
-    id: panel
-    property string panelTitle: ""
-    property string currentFilter: ""
-    property string markedItem: ""
-    property bool isCurrentPanel: false
-    property alias listHeight: component.listHeight
-    property alias filterCount: component.filterCount
-    property alias minimumSize: component.minimumSize
-    property alias preferredSize: component.preferredSize
-    property alias maximumSize: component.maximumSize
-
-    //    Component {
-    //        id: panel_component
-    FilterGroupPanelComponent {
-        id: component
-        anchors.fill: parent
-    }
-    //    }
-
-    //    //FIXME - It is supposed to be configurable and dynamically changed
-    //    sourceComponent: panel_component
+QDESK.TableColumn {
+    property int index
+    property bool resizeEnabled: true
+    property bool dragEnabled: true
+    property string sortName: caption
+    property int contentWidth: width
 }
+

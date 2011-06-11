@@ -29,7 +29,7 @@ Column {
     function setStatus() {
         mpm.statusFilterNotInstalledEnabled = not_installed.enabled;
         mpm.statusFilterUpgradeEnabled = upgrade.enabled;
-        mpm.statusFilterInstallingEnabled = installing.enabled;
+        mpm.statusFilterTransitioningEnabled = transitioning.enabled;
         mpm.statusFilterInstalledEnabled = installed.enabled;
 
         mpm.currentStatus = ""
@@ -39,24 +39,24 @@ Column {
         if (upgrade.enabled) {
             mpm.currentStatus += upgrade.status + "|";
         }
-        if (installing.enabled) {
-            mpm.currentStatus += installing.status + "|";
+        if (transitioning.enabled) {
+            mpm.currentStatus += transitioning.status + "|";
         }
         if (installed.enabled) {
             mpm.currentStatus += installed.status + "|";
         }
     }
 
-    StatusFilterButton {
-        id: not_installed
-        statusName: "Not-installed"
-        status: 'N'
-        anchors.horizontalCenter: parent.horizontalCenter
-    }
 
     Row {
-        spacing: 4
+        spacing: 6
         anchors.horizontalCenter: parent.horizontalCenter
+
+        StatusFilterButton {
+            id: not_installed
+            statusName: "Not-installed"
+            status: 'N'
+        }
 
         StatusFilterButton {
             id: upgrade
@@ -65,8 +65,8 @@ Column {
         }
 
         StatusFilterButton {
-            id: installing
-            statusName: "Installing"
+            id: transitioning
+            statusName: "Transitioning"
             status: 'G'
         }
 

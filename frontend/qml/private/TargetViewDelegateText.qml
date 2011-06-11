@@ -21,43 +21,10 @@
 //
 import QtQuick 1.0
 
-Flipable {
-    id: flipable_view
-    property bool flipped: false
-    signal finished
-
-    transform: Rotation {
-        id: rotation
-
-        origin.x: flipable_view.x + flipable_view.width/2
-        origin.y: flipable_view.y + flipable_view.height/2
-        axis.x: 0
-        axis.y: 1
-        axis.z: 0
-        angle: 0
-
-        onAngleChanged: {
-            if ((flipped && angle == -180) ||
-                (!flipped && angle == 0)) {
-                flipable_view.finished();
-            }
-        }
-    }
-
-    states: State {
-        name: "back"
-        when: flipped
-        PropertyChanges {
-            target: rotation
-            angle: -180
-        }
-    }
-
-    transitions: Transition {
-        NumberAnimation {
-            target: rotation
-            property: "angle"
-            duration: 1000
-        }
-    }
+Text {
+    width: parent.width
+    height: parent.height
+    text: itemValue? itemValue : ""
+    elide: Text.ElideRight
+    verticalAlignment: Text.AlignVCenter
 }

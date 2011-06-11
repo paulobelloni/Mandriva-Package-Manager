@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mpm version="2.0">
+    <model>
+        <status>
+            <item>
+                <title>Installed</title>
+                <icon>status-installed.png</icon>
+            </item>
+            <item>
+                <title>Not-Installed</title>
+                <icon>status-not-installed.png</icon>
+            </item>
+            <item>
+                <title>Upgrade</title>
+                <icon>status-upgrade.png</icon>
+            </item>
+            <item>
+                <title>Transitioning</title>
+                <icon>status-transitioning.png</icon>
+            </item>
+        </status>
+    </model>
+</mpm>

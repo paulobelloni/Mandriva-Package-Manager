@@ -28,23 +28,19 @@ import "private" as MPM
 LayoutItem {
     id: mpm
 
-    signal resetView()
+    signal reloadData()
 
-    property string currentMode: "Simple"
-    property string currentCategory: ""
+    property variant currentFilters: {'':''}
     property string currentSort: ""
-    property string currentSource: ""
-    property string currentStatus: ""
+    property string currentSortDirection: "up"
     property bool techItemsShown: false
     property real handlePosition: 0
     property int totalOfItems: packageModel.totalOfMatches
-    property int maxVisibleItems: 0
-    property int rangeLimit: maxVisibleItems
     property bool leftPanelHidden: false
     property bool statusFilterNotInstalledEnabled: false
     property bool statusFilterInstalledEnabled: false
     property bool statusFilterUpgradeEnabled: false
-    property bool statusFilterInstallingEnabled: false
+    property bool statusFilterTransitioningEnabled: false
     property bool scrollbarFrozen: true
 
     // FIXME: change everything about configuration below...
@@ -53,24 +49,15 @@ LayoutItem {
     QtObject {
         id: config
 
-        property string frontendDir: mpmController.frontendDir
-        property string configDir: frontendDir + "/config/"
-        property string imagesDir: frontendDir + "/images/"
+        property string rootDir: mpmController.getRootDir()
+        property string configDir: rootDir + "/config/"
+        property string imagesDir: rootDir + "/images/"
         property string iconsDir: imagesDir + "icons/"
-        property int minimumCellWidth: 50
-        property int minimumCellHeight: 50
-        property int preferredCellWidth: 150
-        property int preferredCellHeight: 150
-        property real maximumCellWidthRate: 0.8   // relative to grid's width
-        property real maximumCellHeightRate: 0.8  // relative to grid's height
-        property real maxVisibleItemsCorrection: 1.1
+
         property int _SEARCH_TIMER_INTERVAL: 150
-        property bool _DEFAULT_TARGET_VIEW_IS_LIST: true
         property int _DEFAULT_HINT_INTERVAL: 800
         property int _HINT_HORIZONTAL_GAP: 4
         property int _HINT_VERTICAL_GAP: 4
-
-        // NEW ---------------------------------------
         property int _TOOLBAR_HEIGHT: 35
         property int _GRID_B_MARGIN: 20
         property int _GRID_L_MARGIN: 10
@@ -85,54 +72,61 @@ LayoutItem {
         property int _LIST_ICON_SIZE: 48
         property int _GRID_STATUS_WIDTH: 60
         property int _LEFT_PANEL_SIZE: 150
-        property int _APP_NAME_DETAILS_SIZE: 20
-        property int _ICON_DETAILS_SIZE: 100
+        property int _APP_FULLNAME_DETAILS_SIZE: 20
         property int _STATUS_DETAILS_WIDTH: 90
-        property int _SUMMARY_DETAILS_HEIGHT: 40
+        property int _DESCRIPTION_DETAILS_HEIGHT: 250
         property int _IMAGE_DETAILS_WIDTH: _IMAGE_DETAILS_HEIGHT * 1.5
         property int _IMAGE_DETAILS_HEIGHT: 400
         property int _BORDER_DETAILS_WIDTH: 2
         property int _ADJUST_MARGIN_DETAILS: 40 // when scrollbar is visible
         property int _L_MARGIN_DETAILS: 20
         property int _R_MARGIN_DETAILS: 50
-        property int _V_MARGIN_DETAILS: 20
+        property int _V_MARGIN_DETAILS: 30
         property int _L_MARGIN_MANAGE: 20
         property int _R_MARGIN_MANAGE: 20
         property int _V_MARGIN_MANAGE: 20
         property int _LIST_ITEM_HEIGHT: 50
         property int _MANAGE_BUTTON_WIDTH: 80
         property int _MANAGE_BUTTON_HEIGHT: 30
-        property int _STATUS_AREA_HEIGHT: 40
-        property int _STATUSBUTTON_RADIUS: 15
+        property int _STATUS_AREA_HEIGHT: 15
+        property int _STATUS_BUTTON_RADIUS: 15
         property int _TOOLBARITEMS_WITH: 400
         property int _SEARCHBOX_WITH: 300
         property int _LEFTPANEL_WIDTH: 140
+        property int _LEFTPANEL_TOOLBAR_HEIGHT: 20
         property int _SEPARATOR_WIDTH: 2
         property int _ACTION_BUTTON_WIDTH: 70
+        property int _ACTION_BUTTON_HEIGHT: 25
         property int _LIST_ITEM_NAME_HEIGHT: 16
         property int _LIST_ITEM_CATEGORY_ICON_SIZE: 20
         property int _LIST_ITEM_SOURCE_ICON_SIZE: 20
         property int _LIST_ITEM_STATUS_ICON_SIZE: 15
+        property int _MINIMUM_TARGET_PANEL_HEIGHT: 50
 
         //---rates
         property real _GRID_ITEM_WIDTH_RATE: 5.3
-        property real _ACTION_BUTTON_HEIGHT_RATE: 0.5
         property real _ICON_STATUS_RATE: 3.5
         property real _FOLDER_RATION: 0.25
 
         //---colors
         property color _SEPARATOR_COLOR:  "#c9c9c8"
         property color _INSTALLED_BACKGROUND_COLOR: "#6dab6e"
-        property color _INSTALL_BUTTON_BACKGROUND: "#9fa1a0"
+        property color _INSTALL_BUTTON_BACKGROUND: "green"
+        property color _UPGRADE_BUTTON_BACKGROUND: "yellow"
+        property color _REMOVE_BUTTON_BACKGROUND: "red"
         property color _STATUS_BORDER: "#ebebec"
         property color _STATUS_FONT_COLOR: "#ffffff"
         property color _BUTTON_FONT_COLOR: "#000000"
         property color _TOOLBAR_BACKGROUND_COLOR: syspal.window
+        property color _TOOLBAR_BORDER_COLOR: "transparent"//Qt.lighter(syspal.window)
         property color _TOOLBARITEM_FONT_COLOR: syspal.text
         property color _TOOLBARITEM_BACKGROUND_COLOR: "#9fa1a0"
-        property color _LEFTPANEL_BACKGROUND_INITIAL_COLOR: "#6d6d6d"
-        property color _LEFTPANEL_BACKGROUND_FINAL_COLOR: "#4d4d4d"
+        property color _LEFTPANEL_BACKGROUND_COLOR: syspal.dark
+        property color _LEFTPANEL_TOOLBAR_INITIAL_COLOR: "#6d6d6d"
+        property color _LEFTPANEL_TOOLBAR_FINAL_COLOR: "#4d4d4d"
         property color _LEFTPANEL_FONT_COLOR: "#ffffff"
+        property color _LEFTPANEL_MARKED_FONT_COLOR: syspal.highlightedText
+        property color _LEFTPANEL_TITLE_FONT_COLOR: syspal.text
         property color _LEFTPANEL_HIGHLIGHT_COLOR: syspal.highlight
         property color _TARGETPANEL_BACKGROUND_COLOR: syspal.base
         property color _STATUSBAR_BACKGROUND_INITIAL_COLOR: "#6d6d6d"
@@ -147,28 +141,41 @@ LayoutItem {
         property string _EDIT_FIND_ICON: "edit-find"
         property string _PREVIOUS_ICON: "go-previous"
         property string _NEXT_ICON: "go-next"
-        property string _UPDATE_ICON: "go-bottom"
+        property string _UPGRADE_ICON: "go-bottom"
         property string _NO_IMAGE: "no-image"
         property string _SETTINGS_ICON: "preferences-system"
+        property string _HISTORY_ICON: "document-open-recent"
+        property string _CLOSE_ICON: "window-close"
     }
 
     QtObject {
         id: controllerData
 
-        property int index: 0
-        property int range: mpm.rangeLimit
         property string pattern: ""
-        property string category: mpm.currentCategory
+        property string category: normalize(mpm.currentFilters['Category'])
+        property string source: normalize(mpm.currentFilters['Source'])
+        property string status: normalize(mpm.currentFilters['Status'])
         property string sort: mpm.currentSort
-        property string source: mpm.currentSource
-        property string status: mpm.currentStatus
-        property bool technical: mpm.techItemsShown
+        property string sortDirection: mpm.currentSortDirection
 
         onPatternChanged: search_timer.restart()
     }
 
-    function reloadData() {
-        mpm.resetView();
+    function normalize(value) {
+        return value? value : ""
+    }
+
+    function debugData() {
+        console.debug("==> pattern: "+controllerData.pattern)
+        console.debug("==> category: "+controllerData.category)
+        console.debug("==> source: "+controllerData.source)
+        console.debug("==> status: "+controllerData.status)
+        console.debug("==> sort: "+controllerData.sort)
+        console.debug("==> sortDirection: "+controllerData.sortDirection)
+    }
+
+    function runSearch() {
+        //mpm.debugData();
         mpmController.search(controllerData);
     }
 
@@ -180,48 +187,29 @@ LayoutItem {
         return statusFilter === "" || statusFilter === status
     }
 
-    function mapStatus(c) {
-        if (c === "N") {
-            return "Not-installed";
-        }
-        else if (c === "I") {
-            return "Installed";
-        }
-        else if (c === "U") {
-            return "Upgrade";
-        }
-        else if (c === "G") {
-            return "Installing";
-        }
-        else {
-            return "";
-        }
-    }
-
     function statusEnabled(c) {
-        if (c === "N") {
+        if (c === "Not-Installed") {
             return mpm.statusFilterNotInstalledEnabled;
         }
-        else if (c === "I") {
+        else if (c === "Installed") {
             return mpm.statusFilterInstalledEnabled;
         }
-        else if (c === "U") {
+        else if (c === "Upgrade") {
             return mpm.statusFilterUpgradeEnabled;
         }
-        else if (c === "G") {
-            return mpm.statusFilterInstallingEnabled;
+        else if (c === "Transitioning") {
+            return mpm.statusFilterTransitioningEnabled;
         }
         else {
             return false;
         }
     }
 
-// FIXME: should be on caller
-//    minimumSize: "600x400"
-//    preferredSize: "940x600"
-//    maximumSize: "800x600"
-//    width: preferredSize.width
-//    height: preferredSize.height
+// FIXME: we need to use LayoutItem to limit resizing
+    minimumSize: "800x550"
+    preferredSize: "800x550"
+    width: preferredSize.width
+    height: preferredSize.height
 //
 // FIXME: - synchronize the limits with the upper layer.
 //       - also, make the application headless
@@ -271,5 +259,9 @@ LayoutItem {
 
     MPM.Hint {
         id: hint
+    }
+
+    Component.onCompleted: {
+        mpmController.setMinimumSize(minimumSize.width, minimumSize.height);
     }
 }
