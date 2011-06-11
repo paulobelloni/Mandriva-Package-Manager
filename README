@@ -1,35 +1,21 @@
 NOTES
 
-- This is a tech preview (pre-pre-alpha) for the new Mandriva Package Manager,
-  MPM.
-- Currently it has only basic search (and filters) capabilities.
+- This is the version 0.4.0 of Mandriva Package Manager, MPM.
+- Currently it has only package search (and filters) capabilities.
   No install/remove/update is available yet.
-- It is crashing sometimes. We are investigating, but it seems to
-  be related to qt-desktop/'libqtdeclarative' issues.
-- The scrollbar implemented is meant to be temporary, so it is far
-  from perfect, lacking sync with Flikable and better Model reset.
-  The application may freeze sometimes due lost of sync with Model when
-  using the scrollbar.
-- Themes and layout are and investigation too, so do not worry if it
-  seems 'ugly' or terribly malformed. But do not hesitate to give us a
-  feedback, so you can help us to improve it.
-- The Advanced and Settings pages are not implemented yet.
-- Also, we do not have a details page yet.
+- The History, Settings, Install, Remove and Upgrade buttons
+  do not do anything yet.
+- Click an item to mark it for intallation/removal/upgrade. Click again to
+  go back (or use the back button).
+- You can control the splitter when an item is marked. In this mode, you
+  may choose other items while keeping the buttons visible.
 
   If you find something wrong, just let us know.
   Thanks,
   Paulo - paulo@mandriva.com
 
-DEPENDENCIES
+HOW TO INSTALL AND RUN
 
-* To be able to test it you need to install the following packages:
-- qt-components-desktop-20110526-1
-- Get the source package mdvpkg-0.5.1-0.src.rpm at
-  'http://kenobi.mandriva.com/~jvdm/'
-
-HOW TO RUN
-
-- first, as root, you will need to run the daemon /usr/sbin/mdvpkgd
-- after that, run 'frontend/bin/mam' from the root of the
-  Mandriva-Package-Manager - or mpm - directory you installed the sources.
+- on Mandriva, install the package mpm
+- run the command: mpm
 
