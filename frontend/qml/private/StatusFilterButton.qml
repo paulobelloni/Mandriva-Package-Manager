@@ -60,7 +60,7 @@ Item {
 
     HintArea {
         anchors.fill: parent
-        text: "Show " + statusName
+        text: qsTr("Show") + " " + statusName
         onClicked: {
             disabled.visible = !disabled.visible;
             status_buttons.setStatus();
