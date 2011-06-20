@@ -38,7 +38,7 @@ Row {
                 PropertyChanges {
                     target: upgrade_action
                     color: config._UPGRADE_BUTTON_BACKGROUND
-                    text: "UPGRADE"
+                    text: qsTr("UPGRADE")
                     visible: true
                 }
             }
@@ -59,7 +59,7 @@ Row {
                 PropertyChanges {
                     target: basic_action
                     color: config._INSTALL_BUTTON_BACKGROUND
-                    text: "INSTALL"
+                    text: qsTr("INSTALL")
                     visible: true
                 }
             },
@@ -68,7 +68,7 @@ Row {
                 PropertyChanges {
                     target: basic_action
                     color: config._REMOVE_BUTTON_BACKGROUND
-                    text: "REMOVE"
+                    text: qsTr("REMOVE")
                     visible: true
                 }
             },
