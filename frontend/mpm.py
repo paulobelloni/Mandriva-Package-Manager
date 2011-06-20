@@ -95,8 +95,8 @@ class MPMcontroller(QtCore.QObject):
         return locale.format("%d", value, grouping=True)
 
     @QtCore.Slot(int, int, result=str)
-    def humanize_size(self, bytes, precision=1):
-        """Return a humanized string representation of a number of bytes.
+    def humanize_size(self, size, precision=1):
+        """Return a humanized string representation of a number of size.
            Based on Doug Latornell's humanize_bytes recipes. Tks! :) """
         abbrevs = (
             (1<<50L, 'PB'),
@@ -106,12 +106,12 @@ class MPMcontroller(QtCore.QObject):
             (1<<10L, 'kB'),
             (1, 'bytes')
         )
-        if bytes == 1:
+        if size == 1L:
             return '1 byte'
         for factor, suffix in abbrevs:
-            if bytes >= factor:
+            if size >= factor:
                 break
-        return '%.*f %s' % (precision, float(bytes) / factor, suffix)
+        return '%.*f %s' % (precision, float(size) / factor, suffix)
 
     @QtCore.Slot(int, int, int, int)
     def moveWindow(self, x, y, px, py):
@@ -119,6 +119,18 @@ class MPMcontroller(QtCore.QObject):
         newPoint.setX(newPoint.x() - px)
         newPoint.setY(newPoint.y() - py)
         self._window.move(newPoint)
+
+    @QtCore.Slot(int)
+    def installPackage(self, index):
+        self._model.installPackage(index)
+
+    @QtCore.Slot(int)
+    def upgradePackage(self, index):
+        self._model.upgradePackage(index)
+
+    @QtCore.Slot(int)
+    def removePackage(self, index):
+        self._model.removePackage(index)
 
     def _set_cursor(self, shape):
         if not shape:
@@ -186,10 +198,19 @@ def start():
     mainQML = '%s/%s' % (frontend.MPM_QML_DIR,
                         os.path.basename(__file__.replace('.py', '.qml')))
     if not os.path.exists(mainQML):
-        logger.critical('QML file not found: "%s"' % mainQML)
+        logger.critical('%s: "%s"' % (qsTr('QML file not found'), mainQML))
         quit()
 
     app = QtGui.QApplication(sys.argv)
+    lang = locale.getlocale()[0]
+    if lang != frontend.MPM_DEFAULT_LANG:
+        translator = QtCore.QTranslator()
+        idir = "%s/i18n" % frontend.MPM_FRONTEND_DIR
+        ifile = "%s/mpm.%s" % (idir, lang)
+        if translator.load(ifile, ":/"):
+            app.installTranslator(translator)
+        else:
+            logger.warning("No translation for '%s' has been found." % lang)
     view = QtDeclarative.QDeclarativeView()
     view.setResizeMode(QtDeclarative.QDeclarativeView.SizeRootObjectToView)
     view.setWindowTitle("Mandriva Package Manager")
