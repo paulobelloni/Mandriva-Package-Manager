@@ -39,6 +39,8 @@ class Package(QtCore.QObject):
         self._description = None
         self._size = None
         self._installtime = None
+        self._distepoch = None
+        self._progress = 1.0
         self._nfy_name.connect(self._nfy_fullname)
         self._nfy_version.connect(self._nfy_fullname)
         self._nfy_release.connect(self._nfy_fullname)
@@ -68,7 +70,7 @@ class Package(QtCore.QObject):
 
     _nfy_name = QtCore.Signal()
 
-    name = QtCore.Property(str, _get_name, _set_name, notify=_nfy_name)
+    name = QtCore.Property(unicode, _get_name, _set_name, notify=_nfy_name)
 
     # version attribute ------------
     def _set_version(self, value):
@@ -81,7 +83,7 @@ class Package(QtCore.QObject):
 
     _nfy_version = QtCore.Signal()
 
-    version = QtCore.Property(str, _get_version, _set_version, notify=_nfy_version)
+    version = QtCore.Property(unicode, _get_version, _set_version, notify=_nfy_version)
 
     # release attribute ------------
     def _set_release(self, value):
@@ -94,7 +96,7 @@ class Package(QtCore.QObject):
 
     _nfy_release = QtCore.Signal()
 
-    release = QtCore.Property(str, _get_release, _set_release, notify=_nfy_release)
+    release = QtCore.Property(unicode, _get_release, _set_release, notify=_nfy_release)
 
     # arch attribute ------------
     def _set_arch(self, value):
@@ -107,7 +109,7 @@ class Package(QtCore.QObject):
 
     _nfy_arch = QtCore.Signal()
 
-    arch = QtCore.Property(str, _get_arch, _set_arch, notify=_nfy_arch)
+    arch = QtCore.Property(unicode, _get_arch, _set_arch, notify=_nfy_arch)
 
     # status attribute ------------
     def _set_status(self, value):
@@ -120,7 +122,7 @@ class Package(QtCore.QObject):
 
     _nfy_status = QtCore.Signal()
 
-    status = QtCore.Property(str, _get_status, _set_status, notify=_nfy_status)
+    status = QtCore.Property(unicode, _get_status, _set_status, notify=_nfy_status)
 
     # source attribute ------------
     def _set_source(self, value):
@@ -133,7 +135,7 @@ class Package(QtCore.QObject):
 
     _nfy_source = QtCore.Signal()
 
-    source = QtCore.Property(str, _get_source, _set_source, notify=_nfy_source)
+    source = QtCore.Property(unicode, _get_source, _set_source, notify=_nfy_source)
 
     # category attribute ------------
     def _set_category(self, value):
@@ -146,7 +148,7 @@ class Package(QtCore.QObject):
 
     _nfy_category = QtCore.Signal()
 
-    category = QtCore.Property(str, _get_category, _set_category, notify=_nfy_category)
+    category = QtCore.Property(unicode, _get_category, _set_category, notify=_nfy_category)
 
     # media attribute ------------
     def _set_media(self, value):
@@ -159,7 +161,7 @@ class Package(QtCore.QObject):
 
     _nfy_media = QtCore.Signal()
 
-    media = QtCore.Property(str, _get_media, _set_media, notify=_nfy_media)
+    media = QtCore.Property(unicode, _get_media, _set_media, notify=_nfy_media)
 
     # group attribute ------------
     def _set_group(self, value):
@@ -172,7 +174,7 @@ class Package(QtCore.QObject):
 
     _nfy_group = QtCore.Signal()
 
-    group = QtCore.Property(str, _get_group, _set_group, notify=_nfy_group)
+    group = QtCore.Property(unicode, _get_group, _set_group, notify=_nfy_group)
 
     # summary attribute ------------
     def _set_summary(self, value):
@@ -185,7 +187,7 @@ class Package(QtCore.QObject):
 
     _nfy_summary = QtCore.Signal()
 
-    summary = QtCore.Property(str, _get_summary, _set_summary, notify=_nfy_summary)
+    summary = QtCore.Property(unicode, _get_summary, _set_summary, notify=_nfy_summary)
 
     # description attribute ------------
     def _set_description(self, value):
@@ -198,7 +200,7 @@ class Package(QtCore.QObject):
 
     _nfy_description = QtCore.Signal()
 
-    description = QtCore.Property(str, _get_description, _set_description, notify=_nfy_description)
+    description = QtCore.Property(unicode, _get_description, _set_description, notify=_nfy_description)
 
     # size attribute ------------
     def _set_size(self, value):
@@ -211,7 +213,7 @@ class Package(QtCore.QObject):
 
     _nfy_size = QtCore.Signal()
 
-    size = QtCore.Property(str, _get_size, _set_size, notify=_nfy_size)
+    size = QtCore.Property(unicode, _get_size, _set_size, notify=_nfy_size)
 
     # installtime attribute ------------
     def _set_installtime(self, value):
@@ -224,7 +226,7 @@ class Package(QtCore.QObject):
 
     _nfy_installtime = QtCore.Signal()
 
-    installtime = QtCore.Property(str, _get_installtime, _set_installtime, notify=_nfy_installtime)
+    installtime = QtCore.Property(unicode, _get_installtime, _set_installtime, notify=_nfy_installtime)
 
     # fullname attribute ----------
     def _get_fullname(self):
@@ -234,3 +236,29 @@ class Package(QtCore.QObject):
     _nfy_fullname = QtCore.Signal()
 
     fullname = QtCore.Property(unicode, _get_fullname, notify=_nfy_fullname)
+
+    # distepoch attribute ------------
+    def _set_distepoch(self, value):
+        if (self._distepoch != value):
+            self._distepoch = value
+            self._nfy_distepoch.emit()
+
+    def _get_distepoch(self):
+        return self._distepoch
+
+    _nfy_distepoch = QtCore.Signal()
+
+    distepoch = QtCore.Property(unicode, _get_distepoch, _set_distepoch, notify=_nfy_distepoch)
+
+    # progress attribute ------------
+    def _set_progress(self, value):
+        if (self._progress != value):
+            self._progress = value
+            self._nfy_progress.emit()
+
+    def _get_progress(self):
+        return self._progress
+
+    _nfy_progress = QtCore.Signal()
+
+    progress = QtCore.Property(float, _get_progress, _set_progress, notify=_nfy_progress)
