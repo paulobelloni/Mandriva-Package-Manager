@@ -20,14 +20,17 @@
 ## Author(s): J. Victor Martins <jvdm@mandriva.com>
 ##            Paulo Belloni <paulo@mandriva.com>
 ##
-## Changelog:
+##     NOTES:
 ## (PBelloni) - Refactory to make it more QT oriented.
 ##              Added DbusProxy, MdvPkgProxy and MdvPkgGroups
 ##              classes. get_package is now asynchronous.
-##              Added qtobjectfactory and class package
+##              Added qtobjectfactory (*) and class package
 ##              hierarchy. Results is now kept on a
 ##              dict, while still acquiring new data.
 ##              Added excludeTechnicalItems.
+##              (*) It is substituted by package module
+##              due to some issues about inheritance we
+##              have found. It is under investigation.
 ##
 """ mdvpkg API for Mandriva Application Manager. """
 
@@ -47,6 +50,7 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 STATUS_NOT_INSTALLED = 'Not-Installed'
 STATUS_INSTALLED = 'Installed'
 STATUS_UPGRADE = 'Upgrade'
+STATUS_TRANSITION = 'Transition'
 
 # List of medias that are considered part of Mandriva's Software
 # source:
@@ -65,8 +69,8 @@ PACKAGE_DETAIL_ATTRIBUTES = (
     'summary',
     'media',
     'installtime',
+    'distepoch',
 #    'disttag',
-#    'distepoch',
 #    'requires',
 #    'provides',
 #    'conflict',
@@ -129,12 +133,28 @@ class MdvPkgResult(QtCore.QObject):
         """
         self._task.Cancel()
 
+    def _check_valid_request(self, action, idx):
+        if not self.ready or idx >= self.count:
+            raise ValueError, "Invalid %s request: %d" % (action, idx)
+        if idx < 0:
+            raise ValueError, "Got negative index (%d) for %s request" % (idx, action)
+
+    def install_package(self, idx):
+        """ Install package at idx. """
+        self._check_valid_request('install', idx)
+#        self._task.InstallPackage(idx)
+
+    def upgrade_package(self, idx):
+        """ Upgrade package at idx. """
+        self._check_valid_request('upgrade', idx)
+
+    def remove_package(self, idx):
+        """ Remove package at idx. """
+        self._check_valid_request('remove', idx)
+
     def get_package(self, idx):
         """ Returns the result at idx. """
-        if not self.ready or idx >= self.count:
-            return None
-        if idx < 0:
-            raise ValueError, "Got negative index:" + idx
+        self._check_valid_request('get', idx)
         if self._useServerCache:
             package = self._get_stored_package(idx)
             if package is None:
@@ -192,15 +212,15 @@ class MdvPkgResult(QtCore.QObject):
         self.ready = True
         self.result_ready.emit()
 
-    def _on_package(self, index, name, mdvpkg_status, install_details, upgrade_details):
+    def _on_package(self, index, name, mdvpkg_status, installed_details, upgrade_details):
         self._check_error()
-        install_details = list(install_details)
+        installed_details = list(installed_details)
         upgrade_details = list(upgrade_details)
         status = self._convert_status(mdvpkg_status)
         if status == STATUS_NOT_INSTALLED:
-            details = upgrade_details[0] if upgrade_details else install_details[0]
+            details = upgrade_details[0]# if upgrade_details else installed_details[0]
         else:
-            details = install_details[0] if install_details else  upgrade_details[0]
+            details = installed_details[0]# if installed_details else  upgrade_details[0]
 
         if details['media'] in MANDRIVA_MEDIAS:
             source = 'Mandriva'
@@ -227,7 +247,8 @@ class MdvPkgResult(QtCore.QObject):
             'status' : status,
 #            'description' : details['description'],
             'size' : details['size'],
-            'installtime' : details['installtime']
+            'installtime' : details['installtime'],
+            'distepoch' : details['distepoch'],
         }
         self._store_package_data(index, data)
 
@@ -359,7 +380,9 @@ class MdvPkgQt(MdvPkgProxy):
                 if status == STATUS_NOT_INSTALLED:
                     task.FilterNew(False)
                 if status == STATUS_UPGRADE:
-                    task.FilterUpgrade(False)                
+                    task.FilterUpgrade(False)
+                if status == STATUS_TRANSITION:
+                    task.FilterTransition(False)
         if source:
             if source not in ('Mandriva', 'Community'):
                 raise ValueError('Unknown source: (%s)' % source)
