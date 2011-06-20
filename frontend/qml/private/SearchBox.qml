@@ -32,7 +32,7 @@ FocusScope {
         anchors.fill: parent
         leftMargin: search_image.width + search_image.anchors.leftMargin + 4
         rightMargin: clear_image.width + clear_image.anchors.rightMargin + 2
-        placeholderText: " type to search"
+        placeholderText: " " + qsTr("type to search")
         font.italic: true
         grabFocusOnHovering: true
     }
