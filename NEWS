@@ -1,0 +1,40 @@
+NEWS
+=========
+
+0.5.0
+- Adds i18n code (only pt_BR translation available at the moment);
+- Renames status Transitioning to Transition;
+- Adds a toolbar to the Package details panel;
+- Move navigation buttons to the left, enlarging Search box;
+- Starting this NEWS (Thanks Eugeni!)
+
+0.4.0
+- With the Qt4 build solved, native components were used again;
+- Removing Simple/Advanced/Settings toolbar buttons;
+- Enlarging SearchBox to fill the gap;
+- Status buttons where moved from status bar to the left panel;
+- Sort items were moved from left panel to the head of the TargetView;
+- TargetView was changed to use a native TableView component;
+- New History and Settings buttons were added on the toolbar;
+- Status bar were modified to act as a splitter and separate TargetView
+from Package details;
+
+0.3.0 (first publicly available version on github)
+- Modifications to use the package qt-components-desktop instead of the
+embedded one;
+- Due to Qt4 build problems on Mandriva Cooker, some components were
+temporarily removed and a fake Toolbar was added;
+- Releasing this verstion on Mandriva 2011.0 Cooker;
+NOTE: This version was erroneously tagged as 0.1.0 (even on cooker);
+
+0.2.5
+- Changes to have a more native look&feel by adding QML components from the
+desktop project (http://qt.gitorious.org/qt-components/desktop);
+
+0.2.0
+Changes with possibilities for a new "look&feel"
+(See http://www.youtube.com/watch?v=YHKDpl8UKMQ);
+
+0.1.0
+First release with "look&feel" coming from the old Mandriva Application Manager
+design. See http://www.youtube.com/watch?v=S7KDtGVMVfs;
