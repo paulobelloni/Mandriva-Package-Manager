@@ -21,21 +21,21 @@
 //
 import QtQuick 1.0
 import components 1.0 as QDESK
+import config 1.0 as CFG
 
 Item {
     id: main_window
     Item {
         id: main_left_panel
-        width: config._LEFTPANEL_WIDTH
         anchors {
             top: toolbar_area.bottom
             bottom: parent.bottom
             left:  parent.left
         }
 
-        Rectangle {
+        BorderImage {
+            source: config.imagesDir + "panel.png"
             anchors.fill: parent
-            color: config._LEFTPANEL_BACKGROUND_COLOR
         }
 
         Column {
@@ -50,24 +50,20 @@ Item {
             width: parent.width
             Repeater {
                 id: panel_builder
-                model: XmlListModel {
-                    source: config.configDir + "FilterGroupsModel.xml";
-                    query: "/mpm/model/filtergroups/item"
-
-                    XmlRole { name: "title"; query: "title/string()" }
-                    XmlRole { name: "position"; query: "position/number()" }
-
-                    onStatusChanged: {
-                        if (status == XmlListModel.Ready) {
-                            for (var i = 0; i < count; i++) {
-                                mpm.currentFilters[get(i).title] = '';
-                            }
+                model: CFG.FilterGroupsModel {
+                    Component.onCompleted: {
+                        for (var i = 0; i < count; i++) {
+                            mpm.currentFilters[get(i).title] = '';
                         }
                     }
                 }
                 delegate: FilterGroupPanel {
                     id: panel
                     property int panelIndex: index
+                    property int panelUtilHeight: mpm.height - main_left_panel.y
+                    // panelUtilHeight - is an answer to a binding loop problem that
+                    // appears on diretly binding to either filters_are.height or
+                    // main_left_panel.height. It seems to be a possible QML bug.
 
                     Item {
                         id: y_helper
@@ -80,7 +76,8 @@ Item {
                         id: tran
                     }
 
-                    panelTitle: title
+                    filterGroupName: title
+                    panelTitle: qsTranslate("FilterGroupsModel", title)
                     isCurrentPanel: filters_area.currentPanel == index
                     width: filters_area.width
                     height: {
@@ -88,11 +85,11 @@ Item {
                             var _nextPos = panel_builder.model.get(index + 1).position;
                         }
                         else {
-                            _nextPos = main_left_panel.height;
+                            _nextPos = panel.panelUtilHeight;
                         }
 
                         var _y = tran.y == 0? y : tran.y
-                        return Math.max((_nextPos * main_left_panel.height) - _y, 0);
+                        return Math.max((_nextPos * panel.panelUtilHeight) - _y, 0);
                     }
 
                     MouseArea {
@@ -107,7 +104,7 @@ Item {
                     }
                     onMarkedItemChanged: {
                         var filters = mpm.currentFilters;  // We need this 'cause QML does not bind array members
-                        filters[panelTitle] = markedItem;
+                        filters[filterGroupName] = markedItem;
                         mpm.currentFilters = filters;
                         mpm.reloadData();
                     }
@@ -126,7 +123,7 @@ Item {
     }
     Separator {
         id: separator
-        x: config._LEFTPANEL_WIDTH
+        x: main_left_panel.width
         width: config._SEPARATOR_WIDTH
         anchors {
             top: toolbar_area.bottom
