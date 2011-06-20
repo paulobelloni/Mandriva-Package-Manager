@@ -33,6 +33,7 @@ Item {
     property alias minimumSize: component.minimumSize
     property alias preferredSize: component.preferredSize
     property alias maximumSize: component.maximumSize
+    property alias filterGroupName: component.filterGroupName
 
     //    Component {
     //        id: panel_component

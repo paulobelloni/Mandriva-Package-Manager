@@ -25,31 +25,17 @@ import components 1.0 as QDESK
 LayoutItem {
     property alias listHeight: filter_list.height
     property alias filterCount: filter_list.count
+    property alias filterGroupName: filter_list.filterGroupName
 
     clip: true
-    BorderImage {
-        source: config.imagesDir + "panel.png"
-        anchors.fill: parent
-    }
-//    Rectangle {
-//        anchors.fill: parent
-//        color: config._LEFTPANEL_BACKGROUND_COLOR
-//    }
 
-    Column {
-        spacing: 10
-        width: panel.width
-        BorderImage {//QDESK.QStyleItem {
+    Item {
+        anchors.fill: parent
+        BorderImage {
             id: toolbar
-//            elementType: "header"
-//            activeControl: itemSort
-//            raised: true
-//            sunken: itemPressed
-//            hover: itemContainsMouse
             source: config.imagesDir + "rail.png"
             width: parent.width
             height: config._LEFTPANEL_TOOLBAR_HEIGHT
-            //height: sizeFromContents(title.font.pixelSize, toolbar.fontHeight).height
             Text {
                 id: title
                 height: font.pointSize + 4 // 4 for bold
@@ -57,7 +43,6 @@ LayoutItem {
                 color: config._LEFTPANEL_TITLE_FONT_COLOR
                 font {
                     italic: true
-                    //pointSize: 11
                     bold: true
                 }
                 anchors {
@@ -73,7 +58,6 @@ LayoutItem {
                     rightMargin: 4
                 }
                 spacing: 0
-                width: childrenRect.width
                 height: parent.height * 0.7
                 Button {
                     id: close
@@ -102,13 +86,13 @@ LayoutItem {
 
         FilterGroupList {
             id: filter_list
-            filterGroupName: panel.panelTitle
-            height: panel.height
-            visible: panel.isCurrentPanel || !panel.needsContraction
             anchors {
                 left: parent.left
                 leftMargin: 10
                 right: parent.right
+                top: toolbar.bottom
+                topMargin: 10
+                bottom: parent.bottom
             }
         }
     }

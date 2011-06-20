@@ -20,69 +20,69 @@
 //
 //
 import QtQuick 1.0
+import config 1.0 as CFG
 
-VisualDataModel {
-    id: item
+Item {
+    id: template
     property string filterGroupName
-    model: XmlListModel {
-         source: config.configDir + item.filterGroupName + "Model.xml"
-         query: "/mpm/model/" + item.filterGroupName.toLowerCase() + "/item"
+    property bool isMarkedItem: panel.markedItem == model.title
 
-         XmlRole { name: "title"; query: "title/string()" }
-         XmlRole { name: "icon"; query: "icon/string()" }
-    }
-    delegate: Item {
-        id: template
-        property bool isMarkedItem: panel.markedItem == model.title
-
-        width: ListView.view.width
-        height: childrenRect.height
-        Row {
-            spacing: 4
-            Image {
-                anchors.verticalCenter: item_label.verticalCenter
-                width: template.height
-                height: width
-                source: config.iconsDir + model.icon
-                smooth: true
-                asynchronous: true
+    Row {
+        spacing: 4
+        Image {
+            id: icon_image
+            anchors.verticalCenter: item_label.verticalCenter
+            width: item_label.paintedHeight
+            height: width
+            source: config.iconsDir + model.icon
+            smooth: true
+            asynchronous: true
+        }
+        Text {
+            id: item_label
+            text: qsTranslate(template.filterGroupName + "Model", model.title)
+            color: isMarkedItem? config._LEFTPANEL_MARKED_FONT_COLOR : config._LEFTPANEL_FONT_COLOR
+            style: isMarkedItem? Text.Normal : Text.Raised // shadow
+            font {
+                pointSize: 10
+                bold: true
             }
-            Text {
-                id: item_label
-                text: model.title
-                color: isMarkedItem? config._LEFTPANEL_MARKED_FONT_COLOR : config._LEFTPANEL_FONT_COLOR
-                style: isMarkedItem? Text.Normal : Text.Raised // shadow
-                font {
-                    pointSize: 10
-                    bold: true
-                }
-                states: [
-                    State {
-                        name: "hovering"
-                        when: mouse_area.containsMouse && !isMarkedItem
-                        PropertyChanges {
-                            target: item_label
-                            color: syspal.highlight
-                            opacity: 1
-                        }
+            states: [
+                State {
+                    name: "hovering"
+                    when: mouse_area.containsMouse && !isMarkedItem
+                    PropertyChanges {
+                        target: item_label
+                        color: syspal.highlight
+                        opacity: 1
                     }
-                ]
+                }
+            ]
+
+            onPaintedSizeChanged: {
+                var _calcW = item_label.paintedWidth +
+                            2*filter_list.anchors.leftMargin +
+                            item_label.paintedHeight +
+                            parent.spacing;
+                main_left_panel.width = Math.max(main_left_panel.width, _calcW)
             }
         }
-        MouseArea {
-            id: mouse_area
-            anchors.fill: parent
-            hoverEnabled: true
-            onPressed: {
-                if (!isMarkedItem) {
-                    panel.markedItem = model.title;
-                    ListView.view.highlightItem.visible = true;
-                    ListView.view.highlightItem.y = template.y;
-                }
-                else {
-                    panel.markedItem = "";
-                    ListView.view.highlightItem.visible = false;
-                }
+    }
+
+    MouseArea {
+        id: mouse_area
+        anchors.fill: parent
+        hoverEnabled: true
+        onEntered: forceActiveFocus()
+        onPressed: {
+            if (!isMarkedItem) {
+                panel.markedItem = model.title;
+                ListView.view.highlightItem.visible = true;
+                ListView.view.highlightItem.y = template.y;
+            }
+            else {
+                panel.markedItem = "";
+                ListView.view.highlightItem.visible = false;
             }
         }
     }

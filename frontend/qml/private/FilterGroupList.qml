@@ -22,14 +22,17 @@
 import QtQuick 1.0
 
 ListView {
-    property alias filterGroupName: item.filterGroupName
+    id: list
+    property string filterGroupName
 
     spacing: 8
     clip: true
     interactive: false
     highlightFollowsCurrentItem: false
-    model: FilterGroupItem {
-        id: item
+    delegate: FilterGroupItem {
+        filterGroupName: list.filterGroupName;
+        width: ListView.view.width
+        height: childrenRect.height
     }
     highlight: Rectangle {
         height: ListView.view? ListView.view.currentItem.height + ListView.view.spacing/2 : 0
@@ -41,6 +44,20 @@ ListView {
             SpringAnimation {
                 spring: 3
                 damping: 0.2
+            }
+        }
+    }
+
+    Keys.onUpPressed: ListView.decrementCurrentIndex()
+    Keys.onDownPressed: ListView.incrementCurrentIndex()
+
+    Loader {
+        id: model_loader
+        source:  list.filterGroupName? config.configDir +
+                                       list.filterGroupName + "Model.qml" : ""
+        onStatusChanged: {
+            if (status == Loader.Ready) {
+                list.model = model_loader.item.model;
             }
         }
     }
