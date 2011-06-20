@@ -1,21 +1,24 @@
-NOTES
+MANDRIVA PACKAGE MANAGER
+========================
 
-- This is the version 0.4.0 of Mandriva Package Manager, MPM.
-- Currently it has only package search (and filters) capabilities.
-  No install/remove/update is available yet.
-- The History, Settings, Install, Remove and Upgrade buttons
-  do not do anything yet.
-- Click an item to mark it for intallation/removal/upgrade. Click again to
-  go back (or use the back button).
-- You can control the splitter when an item is marked. In this mode, you
-  may choose other items while keeping the buttons visible.
+This tool is supposed to be a replacement to the old rpmdrake as the main
+package manager GUI tool for Mandriva Linux Distribution. It is a frontend to
+mdvpkg server, which is the responsible to talk with urp/rpm.
+Our first wish is to have as much feature as rpmdrake offered, but we plan to
+have a much more rich and powerful set of capabilities. In fact, its search
+functionalities already supersedes rpmdrake by allowing the user to choose more
+than a filter (category, status, source and pattern) at once.
 
-  If you find something wrong, just let us know.
-  Thanks,
-  Paulo - paulo@mandriva.com
+Some plans for the future:
+=========================
 
-HOW TO INSTALL AND RUN
+- Search and package management based on History;
+- Media management;
+- Automatic updates;
+- Version freezing;
+- Transactions; 
+- Be functionally attractive even for the more adicted CLI user ;-) 
+- ...
 
-- on Mandriva, install the package mpm
-- run the command: mpm
-
+Paulo - paulo (at) mandriva.com (frontend - mpm)
+JVDM  - jvdm (at) mandriva.com (backend - mdvpkg)
