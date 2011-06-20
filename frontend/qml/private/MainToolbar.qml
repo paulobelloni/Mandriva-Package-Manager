@@ -26,8 +26,8 @@ QDESK.ToolBar {
     id: toolbar
     Row {
         id: navigation_buttons
-        spacing: 0
         anchors.verticalCenter: parent.verticalCenter
+        x: buttons.anchors.rightMargin
         height: parent.height * 0.8
         QDESK.ToolButton {
             id: back
@@ -36,7 +36,7 @@ QDESK.ToolBar {
             opacity: enabled? 1 : 0.2
             width: height
             height: parent.height
-            text: "Back"
+            text: qsTr("Back")
             iconSource: config._THEME_ICONS + config._PREVIOUS_ICON
 //            states: [
 //                State {
@@ -69,28 +69,20 @@ QDESK.ToolBar {
             opacity: enabled? 1 : 0.3
             width: height
             height: parent.height
-            text: "Next"
+            text: qsTr("Next")
             iconSource: config._THEME_ICONS + config._NEXT_ICON
             onClicked: {
                 targetPanel.visible = true;
                 next.enabled = false;
             }
         }
-        Component.onCompleted: {
-            x = (main_left_panel.width - width)/2;
-        }
-    }
-    Item {
-        id: separator_place_holder
-        Component.onCompleted: {
-            x = main_left_panel.width;
-        }
     }
     SearchBox {
         id: search_box
         anchors {
             verticalCenter: parent.verticalCenter
-            left: separator_place_holder.right
+            left: navigation_buttons.right//separator_place_holder.right
+            leftMargin: 10
             right: buttons.left
             rightMargin: 10
         }
@@ -116,7 +108,7 @@ QDESK.ToolBar {
             }
             width: height
             height: parent.height
-            text: "History"
+            text: qsTr("History")
             tooltip: text
             iconSource: config._THEME_ICONS + config._HISTORY_ICON
             onClicked: {
@@ -130,7 +122,7 @@ QDESK.ToolBar {
             }
             width: height
             height: navigation_buttons.height
-            text: "Settings"
+            text: qsTr("Settings")
             iconSource: config._THEME_ICONS + config._SETTINGS_ICON
             onClicked: {
                 //TODO
