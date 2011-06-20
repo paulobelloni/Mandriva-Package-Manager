@@ -40,12 +40,12 @@ LayoutItem {
     property bool statusFilterNotInstalledEnabled: false
     property bool statusFilterInstalledEnabled: false
     property bool statusFilterUpgradeEnabled: false
-    property bool statusFilterTransitioningEnabled: false
+    property bool statusFilterTransitionEnabled: false
     property bool scrollbarFrozen: true
 
     // FIXME: change everything about configuration below...
     //       including change them to upper case.
-    //       we should get it from outside (maybe XML)
+    //       we should get it from outside
     QtObject {
         id: config
 
@@ -197,8 +197,8 @@ LayoutItem {
         else if (c === "Upgrade") {
             return mpm.statusFilterUpgradeEnabled;
         }
-        else if (c === "Transitioning") {
-            return mpm.statusFilterTransitioningEnabled;
+        else if (c === "Transition") {
+            return mpm.statusFilterTransitionEnabled;
         }
         else {
             return false;
