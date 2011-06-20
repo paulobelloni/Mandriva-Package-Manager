@@ -156,8 +156,8 @@ Item {
             index: 1
             resizeEnabled: !target_view.itemMarked
             dragEnabled: !target_view.itemMarked
-            property: '[package.name, package.summary]'
-            caption: 'Name / Summary'
+            property: '[package.name, package.summary, package.progress]'
+            caption: qsTr('Name / Summary')
             sortName: 'Name'
             width: table_view.treeWidth -
                    (column0.contentWidth +
@@ -171,7 +171,8 @@ Item {
             id: column2
             index: 2
             property: 'package.version'
-            caption: 'Version'
+            caption: qsTr('Version')
+            sortName: 'Version'
             width: 100
             visible: !target_view.itemMarked
         }
@@ -179,7 +180,8 @@ Item {
             id: column3
             index: 3
             property: 'mpmController.humanize_size(package.size, 1)'
-            caption: 'Size'
+            caption: qsTr('Size')
+            sortName: 'Size'
             width: 100 + table_view.vscrollbarWidth
             contentWidth: 100
             visible: !target_view.itemMarked
