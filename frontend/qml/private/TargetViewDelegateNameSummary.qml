@@ -20,6 +20,7 @@
 //
 //
 import QtQuick 1.0
+import components 1.0 as QDESK
 
 Item {
     Column {
@@ -29,7 +30,7 @@ Item {
                 if (itemValue[0])
                     return itemValue[0];
                 else
-                    return "waiting...";
+                    return qsTr("waiting...");
             }
             width: parent.width
             height: parent.height/2
@@ -40,12 +41,24 @@ Item {
                 bold: true
             }
         }
-        Text {
+        Item {
             width: parent.width
             height: parent.height/2
-            text: itemValue[1]? itemValue[1] : ""
-            elide: Text.ElideRight
-            verticalAlignment: Text.AlignVCenter
+            Text {
+                visible: !progress.visible
+                anchors.fill: parent
+                text: itemValue[1]? itemValue[1] : ""
+                elide: Text.ElideRight
+                verticalAlignment: Text.AlignVCenter
+            }
+            QDESK.ProgressBar {
+                id: progress
+                visible: value < 1.0
+                width: parent.width * 0.9
+                height: parent.height * 0.6
+                anchors.verticalCenter: parent.verticalCenter
+                value: itemValue[2]? itemValue[2] : 1.0
+            }
         }
     }
 }
