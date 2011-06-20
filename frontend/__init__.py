@@ -41,6 +41,8 @@ MPM_QML_DIR = '%s/qml' % MPM_FRONTEND_DIR
 MPM_IMAGES_DIR = '%s/images' % MPM_FRONTEND_DIR
 MPM_CONFIG_DIR = '%s/config' % MPM_FRONTEND_DIR
 
+MPM_DEFAULT_LANG = 'en_US'
+
 logger = logging.getLogger(__name__)
 #try:
 #    _syslog = logging.handlers.SysLogHandler(
