@@ -48,7 +48,9 @@ os.environ['MPM_ROOT_DIR'] = mpm_root_dir
 sys.path.append(mpm_root_dir)
 
 if not os.environ.get('QML_IMPORT_PATH'):
-    os.environ['QML_IMPORT_PATH'] = '/usr/share/mandriva/qt-components/desktop'
+    os.environ['QML_IMPORT_PATH'] = ''
+os.environ['QML_IMPORT_PATH'] += ':/usr/share/mandriva/qt-components/desktop'
+os.environ['QML_IMPORT_PATH'] += ':%s/frontend' % mpm_root_dir
 
 # Parse command line arguments to configure and run mpm ...
 parser = OptionParser()
