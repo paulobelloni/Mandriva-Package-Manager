@@ -23,7 +23,7 @@ import QtQuick 1.0
 
 MouseArea {
     id: hint_area
-    property string text: "Hint"
+    property string text: ""
     property int interval: config._DEFAULT_HINT_INTERVAL
 
     hoverEnabled: true
