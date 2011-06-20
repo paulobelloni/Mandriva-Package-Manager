@@ -148,7 +148,7 @@ FocusScope {
         font: textInput.font
         opacity: !textInput.text.length && !textInput.activeFocus ? 1 : 0
         color: "gray"
-        text: "Enter text"
+        text: qsTr("Enter text")
         Behavior on opacity { NumberAnimation { duration: 90 } }
     }
 }

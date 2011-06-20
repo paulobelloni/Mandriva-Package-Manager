@@ -37,7 +37,7 @@ Row {
     }
 
     Text {
-        text: "packages available"
+        text: qsTr("packages available")
         horizontalAlignment: Text.AlignHCenter
         opacity: 0.8
         color: syspal.light
