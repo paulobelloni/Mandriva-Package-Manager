@@ -4,7 +4,7 @@ NEWS
 0.5.0
 - Adds i18n code (only pt_BR translation available at the moment);
 - Renames status Transitioning to Transition;
-- Adds a scrollbar to the Package details panel;
+- Adds a toolbar to the Package details panel;
 - Move navigation buttons to the left, enlarging Search box;
 - Starting this NEWS (Thanks Eugeni!)
 
