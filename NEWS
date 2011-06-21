@@ -1,6 +1,9 @@
 NEWS
 =========
 
+0.5.1
+- Adds mpm.desktop file to enable mpm to be run from SimpleWelcome;
+
 0.5.0
 - Adds i18n code (only pt_BR translation available at the moment);
 - Renames status Transitioning to Transition;
