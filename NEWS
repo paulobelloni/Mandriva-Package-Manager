@@ -1,6 +1,15 @@
 NEWS
 =========
 
+0.6.0
+- Changes to allow for closing docks at the left panel as a user
+  customization feature. At this moment, to restore default the
+  user needs to manually remove ~/.mandriva/mpm/LeftPanel.json
+  file.
+- Now, mpm, stores any user customization under ~/.mandriva/mpm/ 
+  For the left panel case, a LeftPanel.json file is created whenever
+  the user changes the default leftpanel.
+
 0.5.1
 - Adds mpm.desktop file to enable mpm to be run from SimpleWelcome;
 
