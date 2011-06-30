@@ -268,20 +268,15 @@ FocusScope{
 
     function changePosition(position, layout, lock) {
         position = position < 0 ? 0 : (position >= tree.count ? tree.count - 1: position);
-//        if (position == tree.currentPosition)
-//            return;
         if (lock) tree.blockUpdates = true
         tree.currentPosition = position;
         if (!layout) layout = ListView.Beginning;
         tree.positionViewAtIndex(tree.currentPosition, layout);
-//        wheelarea.verticalValue = contentY/wheelarea.scale // FIXME
         if (lock) tree.blockUpdates = false
     }
 
     function changeIndex(index, layout, lock) {
         index = index < 0 ? 0 : (index >= tree.count ? tree.count - 1: index);
-//        if (index == tree.currentIndex)
-//            return;
         changePosition(index, layout, lock);
         tree.currentIndex = index;
     }
@@ -552,30 +547,32 @@ FocusScope{
 
     WheelArea {
         id: wheelarea
+        property real scale: 10
+        property int oldValue: 0
+        property bool frozen: false
         anchors.fill: parent
-        property int scale: 5
-        horizontalMinimumValue: hscrollbar.minimumValue/scale
-        horizontalMaximumValue: hscrollbar.maximumValue/scale
         verticalMinimumValue: vscrollbar.minimumValue/scale
         verticalMaximumValue: vscrollbar.maximumValue/scale
-
-        verticalValue: contentY/scale
-        horizontalValue: contentX/scale
-
         onVerticalValueChanged: {
-// FIXME
-//            if(!tree.blockUpdates) {
-//                contentY = verticalValue * scale
-//                vscrollbar.value = contentY
-//            }
+            if (frozen) return;
+            if (verticalValue != oldValue) {
+                var value = verticalValue < 0 ? 0 : Math.round(verticalValue);
+                if (!tree.blockUpdates) {
+                    var sig = value > oldValue? 1 : -1;
+                    root.changeIndex(value * scale, ListView.Contain);
+                    oldValue = verticalValue;
+                }
+            }
         }
 
-        onHorizontalValueChanged: {
-            // FIXME
-//            if(!tree.blockUpdates) {
-//                contentX = horizontalValue * scale
-//                hscrollbar.value = contentX
-//            }
+        Connections {
+            target: vscrollbar
+            onValueChanged: {
+                wheelarea.frozen = true;
+                wheelarea.oldValue = vscrollbar.value/wheelarea.scale;
+                wheelarea.verticalValue = wheelarea.oldValue;
+                wheelarea.frozen = false;
+            }
         }
     }
 
