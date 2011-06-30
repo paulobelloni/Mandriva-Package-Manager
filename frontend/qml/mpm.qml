@@ -146,6 +146,9 @@ LayoutItem {
         property string _SETTINGS_ICON: "preferences-system"
         property string _HISTORY_ICON: "document-open-recent"
         property string _CLOSE_ICON: "window-close"
+
+        //---files
+        property string _LEFTPANEL_CONFIG_FILE: "LeftPanel.json"
     }
 
     QtObject {

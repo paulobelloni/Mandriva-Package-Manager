@@ -18,6 +18,14 @@
 import QtQuick 1.0
 
 ListModel {
+    property string version: "1.0"
+
+    function stringify(obj) {
+        var str = '"title":"'+ obj.title + '",';
+        str += '"position":'+ obj.position;
+        return '{' + str + '}';
+    }
+
     ListElement {
         title: QT_TR_NOOP("Category")
         position: 0.0

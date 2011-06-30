@@ -24,7 +24,7 @@ import logging
 
 __author__  = "Paulo Belloni <paulo@mandriva.com>"
 __state__   = "development"
-__version__ = "0.5.1"
+__version__ = "0.6.1"
 
 MANDRIVA_DATA_DIR = '/usr/share/mandriva'
 DEFAULT_MPM_DIR = '%s/mpm' % MANDRIVA_DATA_DIR
@@ -40,7 +40,9 @@ MPM_FRONTEND_DIR = '%s/frontend' % MPM_ROOT_DIR
 MPM_QML_DIR = '%s/qml' % MPM_FRONTEND_DIR
 MPM_IMAGES_DIR = '%s/images' % MPM_FRONTEND_DIR
 MPM_CONFIG_DIR = '%s/config' % MPM_FRONTEND_DIR
+MPM_JAVASCRIPT_DIR = '%s/js' % MPM_FRONTEND_DIR
 
+MPM_USER_CONFIG_DIR = '%s/.mandriva/mpm/' % os.environ['HOME']
 MPM_DEFAULT_LANG = 'en_US'
 
 logger = logging.getLogger(__name__)

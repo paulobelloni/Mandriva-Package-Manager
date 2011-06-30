@@ -20,7 +20,7 @@
 ##
 ##
 import sys
-import os
+import os, errno
 import logging
 import locale
 locale.setlocale(locale.LC_ALL, '')
@@ -88,6 +88,25 @@ class MPMcontroller(QtCore.QObject):
 
     def setRootObject(self, root):
         self._rootObj = root
+
+    @QtCore.Slot(str, str)
+    def store_config(self, file, data):
+        try:
+            os.makedirs(frontend.MPM_USER_CONFIG_DIR)
+        except OSError, e:
+            if e.errno != errno.EEXIST:
+                raise
+
+        with open(frontend.MPM_USER_CONFIG_DIR + file, 'w') as f:
+            f.write(data);
+
+    @QtCore.Slot(str, result=str)
+    def restore_config(self, file):
+        try:
+            with open(frontend.MPM_USER_CONFIG_DIR + file, 'r') as f:
+                return f.read();
+        except:
+            return ""
 
     @QtCore.Slot(int, result=str)
     def pretty_value(self, value):

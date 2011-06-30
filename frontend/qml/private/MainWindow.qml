@@ -22,6 +22,7 @@
 import QtQuick 1.0
 import components 1.0 as QDESK
 import config 1.0 as CFG
+import "../../js/Store.js" as Store
 
 Item {
     id: main_window
@@ -55,6 +56,10 @@ Item {
                         for (var i = 0; i < count; i++) {
                             mpm.currentFilters[get(i).title] = '';
                         }
+                        var jsonGetter = function () {
+                            return mpmController.restore_config(config._LEFTPANEL_CONFIG_FILE);
+                        }
+                        Store.restoreModel(panel_builder.model, jsonGetter);
                     }
                 }
                 delegate: FilterGroupPanel {
@@ -65,31 +70,19 @@ Item {
                     // appears on diretly binding to either filters_are.height or
                     // main_left_panel.height. It seems to be a possible QML bug.
 
-                    Item {
-                        id: y_helper
-                        onYChanged: {
-                            tran.y = y;
-                        }
-                    }
-
-                    transform: Translate {
-                        id: tran
-                    }
-
                     filterGroupName: title
                     panelTitle: qsTranslate("FilterGroupsModel", title)
                     isCurrentPanel: filters_area.currentPanel == index
                     width: filters_area.width
                     height: {
+                        if (index < 0) return 0;
+                        var _pos = panel_builder.model.get(index).position;
+                        var _nextPos = 1;
                         if (index < panel_builder.model.count - 1) {
-                            var _nextPos = panel_builder.model.get(index + 1).position;
-                        }
-                        else {
-                            _nextPos = panel.panelUtilHeight;
+                            _nextPos = panel_builder.model.get(index + 1).position;
                         }
 
-                        var _y = tran.y == 0? y : tran.y
-                        return Math.max((_nextPos * panel.panelUtilHeight) - _y, 0);
+                        return (_nextPos - _pos) * panel.panelUtilHeight;
                     }
 
                     MouseArea {
@@ -108,6 +101,18 @@ Item {
                         mpm.currentFilters = filters;
                         mpm.reloadData();
                     }
+                    onClosePanel: {
+                        panel_builder.model.remove(index);
+                        var jsonSetter = function (json) {
+                            mpmController.store_config(config._LEFTPANEL_CONFIG_FILE, json);
+                        }
+                        Store.storeModel(panel_builder.model, jsonSetter);
+                    }
+                }
+                onCountChanged: {
+                    if (count == 0) {
+                        main_left_panel.width = 0;
+                    }
                 }
             }
         }
@@ -124,7 +129,7 @@ Item {
     Separator {
         id: separator
         x: main_left_panel.width
-        width: config._SEPARATOR_WIDTH
+        width: main_left_panel.width > 0 ? config._SEPARATOR_WIDTH : 0
         anchors {
             top: toolbar_area.bottom
             bottom: parent.bottom

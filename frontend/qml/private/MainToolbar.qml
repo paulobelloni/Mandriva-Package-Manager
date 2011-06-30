@@ -103,6 +103,7 @@ QDESK.ToolBar {
         }
         QDESK.ToolButton {
             id: history
+            enabled: false
             anchors {
                 verticalCenter: parent.verticalCenter
             }
@@ -117,6 +118,7 @@ QDESK.ToolBar {
         }
         QDESK.ToolButton {
             id: settings
+            enabled: false
             anchors {
                 verticalCenter: parent.verticalCenter
             }

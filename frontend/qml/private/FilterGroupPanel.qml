@@ -28,12 +28,14 @@ Item {
     property string currentFilter: ""
     property string markedItem: ""
     property bool isCurrentPanel: false
-    property alias listHeight: component.listHeight
+    property alias contentHeight: component.contentHeight
     property alias filterCount: component.filterCount
     property alias minimumSize: component.minimumSize
     property alias preferredSize: component.preferredSize
     property alias maximumSize: component.maximumSize
     property alias filterGroupName: component.filterGroupName
+
+    signal closePanel
 
     //    Component {
     //        id: panel_component

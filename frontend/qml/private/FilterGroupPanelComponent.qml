@@ -23,7 +23,7 @@ import QtQuick 1.0
 import components 1.0 as QDESK
 
 LayoutItem {
-    property alias listHeight: filter_list.height
+    property alias contentHeight: filter_list.contentHeight
     property alias filterCount: filter_list.count
     property alias filterGroupName: filter_list.filterGroupName
 
@@ -68,6 +68,9 @@ LayoutItem {
                     height: parent.height
                     iconSource: config._THEME_ICONS + config._CLOSE_ICON
                     iconHeight: height * 0.6
+                    onClicked: {
+                        panel.closePanel();
+                    }
                 }
             }
 
