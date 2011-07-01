@@ -1,6 +1,11 @@
 NEWS
 =========
 
+0.6.1
+- Adds Settings panel enabling the user to restore default
+  left-panel structure. No need to manually remove LeftPanel.json
+  anymore.
+
 0.6.0
 - Mousewheel now works with minor erratic synchronization with the
   vertical scrollbar.
