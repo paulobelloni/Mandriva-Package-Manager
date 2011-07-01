@@ -108,6 +108,14 @@ class MPMcontroller(QtCore.QObject):
         except:
             return ""
 
+    @QtCore.Slot(str)
+    def remove_config(self, file):
+        try:
+            os.remove(frontend.MPM_USER_CONFIG_DIR + file)
+        except OSError, e:
+            if e.errno != errno.ENOENT:
+                raise
+
     @QtCore.Slot(int, result=str)
     def pretty_value(self, value):
         """Based on a recipe from Eugeni. Tks! :) """

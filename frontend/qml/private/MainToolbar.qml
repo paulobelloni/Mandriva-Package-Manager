@@ -118,7 +118,6 @@ QDESK.ToolBar {
         }
         QDESK.ToolButton {
             id: settings
-            enabled: false
             anchors {
                 verticalCenter: parent.verticalCenter
             }
@@ -127,7 +126,7 @@ QDESK.ToolBar {
             text: qsTr("Settings")
             iconSource: config._THEME_ICONS + config._SETTINGS_ICON
             onClicked: {
-                //TODO
+                main_area.state = "show_settings";
             }
         }
     }

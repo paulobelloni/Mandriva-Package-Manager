@@ -64,7 +64,7 @@ Item {
                             2*filter_list.anchors.leftMargin +
                             item_label.paintedHeight +
                             parent.spacing;
-                main_left_panel.width = Math.max(main_left_panel.width, _calcW);
+                left_panel.width = Math.max(left_panel.width, _calcW);
             }
         }
     }

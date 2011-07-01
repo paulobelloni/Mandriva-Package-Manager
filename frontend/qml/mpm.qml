@@ -29,6 +29,7 @@ LayoutItem {
     id: mpm
 
     signal reloadData()
+    signal restoreLeftPanel()
 
     property variant currentFilters: {'':''}
     property string currentSort: ""
@@ -42,6 +43,7 @@ LayoutItem {
     property bool statusFilterUpgradeEnabled: false
     property bool statusFilterTransitionEnabled: false
     property bool scrollbarFrozen: true
+    property bool enableLeftPanelCustomization
 
     // FIXME: change everything about configuration below...
     //       including change them to upper case.

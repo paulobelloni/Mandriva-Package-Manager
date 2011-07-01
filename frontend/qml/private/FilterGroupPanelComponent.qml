@@ -64,6 +64,7 @@ LayoutItem {
                     anchors {
                         verticalCenter: parent.verticalCenter
                     }
+                    enabled: mpm.enableLeftPanelCustomization
                     width: height
                     height: parent.height
                     iconSource: config._THEME_ICONS + config._CLOSE_ICON
@@ -81,8 +82,8 @@ LayoutItem {
 //                drag {
 //                    target: y_helper
 //                    axis: Drag.YAxis
-//                    minimumY: -200//main_left_panel.y
-//                    maximumY: main_left_panel.height - config._LEFTPANEL_TOOLBAR_HEIGHT
+//                    minimumY: -200//left_panel.y
+//                    maximumY: left_panel.height - config._LEFTPANEL_TOOLBAR_HEIGHT
 //                }
 //            }
         }
