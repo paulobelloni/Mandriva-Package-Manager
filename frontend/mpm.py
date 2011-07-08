@@ -39,19 +39,26 @@ class MPMcontroller(QtCore.QObject):
         'category': 'categories',
         'pattern': 'patterns',
         'sort': 'sort',
-        'source': 'source',
-        'statuses': 'statuses'
+        'source': 'sources',
+        'statuses': 'statuses',
+    }
+    STATUS_MAP={
+        'Installed': ['installed'],
+        'Not installed': ['new'],
+        'Upgradable': ['upgrade'],
+        'In progress': ['installing', 'removing'],
     }
     SORT_MAP={
         'Date': 'installtime',
         'Name': 'name',
-        'Size': 'size'
+        'Size': 'size',
     }
 
     def __init__(self, rootContext, window):
         super(MPMcontroller, self).__init__()
         self._window = window
         self._model = packageModel(self)
+        self._model.search(packageModel.DEFAULT_SEARCH)
         rootContext.setContextProperty('packageModel', self._model)
 
     @QtCore.Slot(QtCore.QObject)
@@ -60,25 +67,24 @@ class MPMcontroller(QtCore.QObject):
 
         value = rawData.property('pattern')
         filters[MPMcontroller.FILTER_MAP['pattern']] = \
-            [value] if value else None
+            [value] if value else []
 
         value = rawData.property('category')
         filters[MPMcontroller.FILTER_MAP['category']] = \
-            [value] if value else None
+            [value] if value else []
 
+        value = rawData.property('source')
         filters[MPMcontroller.FILTER_MAP['source']] = \
-            rawData.property('source') or None
+            [value] if value else []
 
-        status = rawData.property('status')
-        if  status and status[0] == '|':
-            filters[MPMcontroller.FILTER_MAP['statuses']] = \
-                status.split('|')[:-1] or None
-        else:
-            filters[MPMcontroller.FILTER_MAP['statuses']] = \
-                (status,) or None
+        value = rawData.property('status')
+        value = MPMcontroller.STATUS_MAP.get(value)
+        filters[MPMcontroller.FILTER_MAP['statuses']] = \
+            value if value else []
 
-        sort = (MPMcontroller.SORT_MAP.get(rawData.property('sort')),
-                rawData.property('sortDirection') == 'up')
+        value = rawData.property('sort')
+        value = MPMcontroller.SORT_MAP.get(value)
+        sort = (value, rawData.property('sortDirection') == 'up')
 
         searchData = {
             'filters': filters,

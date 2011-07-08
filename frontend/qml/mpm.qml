@@ -40,8 +40,8 @@ LayoutItem {
     property bool leftPanelHidden: false
     property bool statusFilterNotInstalledEnabled: false
     property bool statusFilterInstalledEnabled: false
-    property bool statusFilterUpgradeEnabled: false
-    property bool statusFilterTransitionEnabled: false
+    property bool statusFilterUpgradableEnabled: false
+    property bool statusFilterInProgressEnabled: false
     property bool scrollbarFrozen: true
     property bool enableLeftPanelCustomization
 
@@ -199,11 +199,11 @@ LayoutItem {
         else if (c === "Installed") {
             return mpm.statusFilterInstalledEnabled;
         }
-        else if (c === "Upgrade") {
-            return mpm.statusFilterUpgradeEnabled;
+        else if (c === "Upgradable") {
+            return mpm.statusFilterUpgradableEnabled;
         }
-        else if (c === "Transition") {
-            return mpm.statusFilterTransitionEnabled;
+        else if (c === "In-Progress") {
+            return mpm.statusFilterInProgressEnabled;
         }
         else {
             return false;

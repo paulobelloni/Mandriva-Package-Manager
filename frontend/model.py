@@ -26,25 +26,9 @@ from PySide import QtCore
 
 import exceptions
 import frontend
-from backend.mdvpkg.mdvpkgqt import Package, MdvPkgResult, MdvPkgQt
+from backend.mdvpkg.mdvpkgqt import Package, MdvPkgResult
 
 logger = logging.getLogger(__name__)
-
-class MpmPkgResult(MdvPkgResult):
-    def __init__(self, parent, task, useServerCache):
-        super(MpmPkgResult, self).__init__(parent, task, useServerCache)
-
-    def _create_package(self, idx):
-        return Package(self, idx)
-
-
-class MpmPkgQt(MdvPkgQt):
-    def __init__(self, parent):
-        super(MpmPkgQt, self).__init__(parent)
-
-    def _create_result(self, task, useServerCache):
-        return MpmPkgResult(self, task, useServerCache)
-
 
 class packageModel(QtCore.QAbstractListModel):
     COLUMNS = ('package',)
@@ -55,21 +39,17 @@ class packageModel(QtCore.QAbstractListModel):
         super(packageModel, self).__init__(controller)
         self.setRoleNames(dict(enumerate(packageModel.COLUMNS)))
         self._controller = controller
-        self._result = None
         self._count = 0
-        self._searchData = packageModel.DEFAULT_SEARCH
-        self._initiatePackageSource()
+        self._searchData = None
+        self._result = MdvPkgResult(self)
+        self._result.result_ready.connect(self._on_result_ready)
 
-    def _initiatePackageSource(self):
-        self._packageSource = MpmPkgQt(self)
-        self._packageSource.mdvpkgqt_ready.connect(self._on_mdvpkgqt_ready)
-        self._packageSource.start()
+    def search(self, searchData):
+        if searchData == self._searchData:
+            return
+        self._searchData = searchData
+        self._result.run_filters(**self._searchData['filters'])
 
-    @QtCore.Slot()
-    def _on_mdvpkgqt_ready(self):
-        self._getResult()
-
-    @QtCore.Slot()
     def _on_result_ready(self):
         self._count = self._result.count
         sort = self._searchData['sort']
@@ -77,21 +57,6 @@ class packageModel(QtCore.QAbstractListModel):
             self._result.sort(*sort)
         self._totalOfMatches_changed.emit()
         self.modelReset.emit()
-
-    def search(self, searchData):
-        if searchData == self._searchData:
-            return
-        self._result.result_ready.disconnect()
-        self._result.release()
-        self._searchData = searchData
-        self._getResult()
-
-    def _getResult(self):
-        self._result = \
-            self._packageSource.list_packages(useServerCache=True,
-                                                **self._searchData['filters'])
-        self._result.result_ready.connect(self._on_result_ready)
-        self._result.run()
 
     _totalOfMatches_changed = QtCore.Signal()
 

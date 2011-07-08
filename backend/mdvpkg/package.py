@@ -40,6 +40,7 @@ class Package(QtCore.QObject):
         self._size = None
         self._installtime = None
         self._distepoch = None
+        self._action = None
         self._progress = 1.0
         self._nfy_name.connect(self._nfy_fullname)
         self._nfy_version.connect(self._nfy_fullname)
@@ -249,6 +250,19 @@ class Package(QtCore.QObject):
     _nfy_distepoch = QtCore.Signal()
 
     distepoch = QtCore.Property(unicode, _get_distepoch, _set_distepoch, notify=_nfy_distepoch)
+
+    # action attribute ------------
+    def _set_action(self, value):
+        if (self._action != value):
+            self._action = value
+            self._nfy_action.emit()
+
+    def _get_action(self):
+        return self._action
+
+    _nfy_action = QtCore.Signal()
+
+    action = QtCore.Property(unicode, _get_action, _set_action, notify=_nfy_action)
 
     # progress attribute ------------
     def _set_progress(self, value):
