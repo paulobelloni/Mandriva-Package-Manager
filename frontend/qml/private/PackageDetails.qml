@@ -73,7 +73,7 @@ Rectangle {
                                     }
                                 }
                                 Text {
-                                    text: target_view.currentPackage?  target_view.currentPackage.group : ""
+                                    text: target_view.currentPackage? target_view.currentPackage.group : ""
                                 }
                             }
                             Column {
@@ -86,7 +86,7 @@ Rectangle {
                                     }
                                 }
                                 Text {
-                                    text: target_view.currentPackage?  target_view.currentPackage.source : ""
+                                    text: target_view.currentPackage? target_view.currentPackage.source : ""
                                 }
                             }
                             Column {
@@ -103,7 +103,7 @@ Rectangle {
                                 }
                             }
                             Column {
-                                id: upgraded
+                                id: installed_time
                                 visible: target_view.currentPackage != undefined &&
                                          target_view.currentPackage.installtime != ""
                                 spacing: 4
@@ -307,7 +307,7 @@ Rectangle {
         value: 0
         orientation: Qt.Vertical
         visible: maximumValue > 0
-        maximumValue: Math.max(0, details.childrenRect.height - details.height)
+        maximumValue: Math.max(0, details.childrenRect.height - details.height/2)
         minimumValue: 0
         onValueChanged: details.y = value < 0? 0 : -value
     }
