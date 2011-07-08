@@ -26,7 +26,7 @@ Item {
         id: item_status
 
         function getImageSource(_status) {
-            if (_status === "")
+            if (_status == "" || _status == undefined)
                 return "";
             else {
                 var _enabled = mpm.statusEnabled(_status);
