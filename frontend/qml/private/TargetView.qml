@@ -46,13 +46,13 @@ Item {
                 }
             }
             Component {
-                id: version_release_delegate
+                id: version_delegate
                 TargetViewDelegateText {
                     visible: !target_view.itemMarked || !itemSelected
                 }
             }
             Component {
-                id: size_release_delegate
+                id: size_delegate
                 TargetViewDelegateText {
                     visible: !target_view.itemMarked || !itemSelected
                 }
