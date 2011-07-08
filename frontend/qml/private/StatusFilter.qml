@@ -28,22 +28,22 @@ Column {
 
     function setStatus() {
         mpm.statusFilterNotInstalledEnabled = not_installed.enabled;
-        mpm.statusFilterUpgradeEnabled = upgrade.enabled;
-        mpm.statusFilterTransitionEnabled = transition.enabled;
+        mpm.statusFilterUpgradableEnabled = upgradable.enabled;
+        mpm.statusFilterInProgressEnabled = in_progress.enabled;
         mpm.statusFilterInstalledEnabled = installed.enabled;
 
         mpm.currentStatus = ""
         if (not_installed.enabled) {
-            mpm.currentStatus += not_installed.status + "|";
+            mpm.currentStatus += "|" + not_installed.status;  //mpm.py expects the initial '|'
         }
-        if (upgrade.enabled) {
-            mpm.currentStatus += upgrade.status + "|";
+        if (upgradable.enabled) {
+            mpm.currentStatus += "|" + upgradable.status;
         }
-        if (transition.enabled) {
-            mpm.currentStatus += transition.status + "|";
+        if (in_progress.enabled) {
+            mpm.currentStatus += "|" + in_progress.status;
         }
         if (installed.enabled) {
-            mpm.currentStatus += installed.status + "|";
+            mpm.currentStatus += "|" + installed.status;
         }
     }
 
@@ -59,14 +59,14 @@ Column {
         }
 
         StatusFilterButton {
-            id: upgrade
-            statusName: "Upgrade"
+            id: upgradable
+            statusName: "Upgradable"
             status: 'U'
         }
 
         StatusFilterButton {
-            id: transition
-            statusName: "Transition"
+            id: in_progress
+            statusName: "InProgress"
             status: 'G'
         }
 

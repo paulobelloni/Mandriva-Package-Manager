@@ -14,7 +14,6 @@
 //
 // Author(s): Paulo Belloni <paulo@mandriva.com>
 //
-//
 import QtQuick 1.0
 
 Item {
@@ -24,16 +23,16 @@ Item {
             icon: "status-installed.png"
         }
         ListElement {
-            title: QT_TR_NOOP("Not-Installed")
+            title: QT_TR_NOOP("Not installed")
             icon: "status-not-installed.png"
         }
         ListElement {
-            title: QT_TR_NOOP("Upgrade")
-            icon: "status-upgrade.png"
+            title: QT_TR_NOOP("Upgradable")
+            icon: "status-upgradable.png"
         }
         ListElement {
-            title: QT_TR_NOOP("Transition")
-            icon: "status-transition.png"
+            title: QT_TR_NOOP("In progress")
+            icon: "status-in-progress.png"
         }
     }
 }
