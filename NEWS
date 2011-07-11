@@ -1,6 +1,13 @@
 NEWS
 =========
 
+0.7.0
+- Major refactoring on backend to work with the new PackageList API
+  from mdvpkg (version 0.7.0);
+- Changes Upgrade and Transition status to Upgradable and 'In Progress';
+- Minor bugfixes like increasing the height managable by the Vertical
+  scrollbar at Package details panel.
+
 0.6.1
 - Adds Settings panel enabling the user to restore default
   left-panel structure. No need to manually remove LeftPanel.json
