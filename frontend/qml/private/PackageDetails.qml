@@ -114,27 +114,20 @@ Rectangle {
                                     }
                                 }
                                 Text {
-                                    text: target_view.currentPackage? target_view.currentPackage.installtime : ""
+                                    text: {
+                                        if (!target_view.currentPackage)
+                                            return "";
+                                        var d = new Date();
+                                        d.setTime(target_view.currentPackage.installtime + "000"); //milliseconds
+                                        return Qt.formatDateTime(d);
+                                    }
                                 }
                             }
                             Column {
                                 id: current_version
                                 spacing: 4
                                 Text {
-                                    text: qsTr("Current Version") + ':'
-                                    font {
-                                        bold: true
-                                    }
-                                }
-                                Text {
-                                    text: target_view.currentPackage? target_view.currentPackage.version : ""
-                                }
-                            }
-                            Column {
-                                id: current_release
-                                spacing: 4
-                                Text {
-                                    text: qsTr("Current Release (Epoch)") + ':'
+                                    text: qsTr("Version (Release)") + ':'
                                     font {
                                         bold: true
                                     }
@@ -143,9 +136,31 @@ Rectangle {
                                     text: {
                                         var _text = "";
                                         if (target_view.currentPackage) {
-                                            _text = target_view.currentPackage.release;
-                                            if (target_view.currentPackage.distepoch != "") {
-                                                _text += " (" + target_view.currentPackage.distepoch + ")";
+                                            _text = target_view.currentPackage.version;
+                                            if (target_view.currentPackage.release != "") {
+                                                _text += " (" + target_view.currentPackage.release + ")";
+                                            }
+                                        }
+                                        return _text;
+                                    }
+                                }
+                            }
+                            Column {
+                                id: current_release
+                                spacing: 4
+                                Text {
+                                    text: qsTr("Distro Epoch (Tag)") + ':'
+                                    font {
+                                        bold: true
+                                    }
+                                }
+                                Text {
+                                    text: {
+                                        var _text = "";
+                                        if (target_view.currentPackage) {
+                                            _text = target_view.currentPackage.distepoch;
+                                            if (target_view.currentPackage.disttag != "") {
+                                                _text += " (" + target_view.currentPackage.disttag + ")";
                                             }
                                         }
                                         return _text;
@@ -212,6 +227,11 @@ Rectangle {
                             //                            url: "www.mandriva.com"
                             //                        }
                             //                    }
+                            Item {
+                                id: bottom_mark
+                                width: 1
+                                height: 1
+                            }
                         }
                     }
                 }
@@ -297,6 +317,7 @@ Rectangle {
             }
         }
     }
+
     QDESK.ScrollBar {
         id: detail_scrollbar
         anchors {
@@ -307,7 +328,7 @@ Rectangle {
         value: 0
         orientation: Qt.Vertical
         visible: maximumValue > 0
-        maximumValue: Math.max(0, details.childrenRect.height - details.height/2)
+        maximumValue: Math.max(0, bottom_mark.y - details.height);
         minimumValue: 0
         onValueChanged: details.y = value < 0? 0 : -value
     }
