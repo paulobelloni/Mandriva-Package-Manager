@@ -70,7 +70,7 @@ PACKAGE_DETAIL_ATTRIBUTES = (
     'media',
     'installtime',
     'distepoch',
-#    'disttag',
+    'disttag',
 #    'requires',
 #    'provides',
 #    'conflict',
@@ -227,6 +227,7 @@ class MdvPkgResult(QtCore.QObject):
             'size' : details['size'],
             'installtime' : details['installtime'],
             'distepoch' : details['distepoch'],
+            'disttag' : details['disttag'],
             'action' : action,
         }
         for key in data:

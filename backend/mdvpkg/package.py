@@ -40,6 +40,7 @@ class Package(QtCore.QObject):
         self._size = None
         self._installtime = None
         self._distepoch = None
+        self._disttag = None
         self._action = None
         self._progress = 1.0
         self._nfy_name.connect(self._nfy_fullname)
@@ -250,6 +251,19 @@ class Package(QtCore.QObject):
     _nfy_distepoch = QtCore.Signal()
 
     distepoch = QtCore.Property(unicode, _get_distepoch, _set_distepoch, notify=_nfy_distepoch)
+
+    # disttag attribute ------------
+    def _set_disttag(self, value):
+        if (self._disttag != value):
+            self._disttag = value
+            self._nfy_disttag.emit()
+
+    def _get_disttag(self):
+        return self._disttag
+
+    _nfy_disttag = QtCore.Signal()
+
+    disttag = QtCore.Property(unicode, _get_disttag, _set_disttag, notify=_nfy_disttag)
 
     # action attribute ------------
     def _set_action(self, value):
