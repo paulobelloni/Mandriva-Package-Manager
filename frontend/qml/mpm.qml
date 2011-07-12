@@ -83,7 +83,7 @@ LayoutItem {
         property int _ADJUST_MARGIN_DETAILS: 40 // when scrollbar is visible
         property int _L_MARGIN_DETAILS: 20
         property int _R_MARGIN_DETAILS: 50
-        property int _V_MARGIN_DETAILS: 30
+        property int _V_MARGIN_DETAILS: 0
         property int _L_MARGIN_MANAGE: 20
         property int _R_MARGIN_MANAGE: 20
         property int _V_MARGIN_MANAGE: 20
