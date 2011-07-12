@@ -1,6 +1,12 @@
 NEWS
 =========
 
+0.7.1
+- Changes in Package details panel to:
+  . show Distro Epoch and Tag (Thanks Per Oyvind!);
+  . display formatted Install Time;
+  . fix scrollbar;
+
 0.7.0
 - Major refactoring on backend to work with the new PackageList API
   from mdvpkg (version 0.7.0);
