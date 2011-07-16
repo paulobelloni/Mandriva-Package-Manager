@@ -1,6 +1,12 @@
 NEWS
 =========
 
+0.7.2
+- Modifies the way filters are handled in the backend to only
+  call PackageList's Filter method for modified parameters;
+- Brings more methods about package management;  
+- Does some minors bugfixes;
+
 0.7.1
 - Changes in Package details panel to:
   . show Distro Epoch and Tag (Thanks Per Oyvind!);
