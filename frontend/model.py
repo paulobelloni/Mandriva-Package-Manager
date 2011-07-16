@@ -50,6 +50,15 @@ class packageModel(QtCore.QAbstractListModel):
         self._searchData = searchData
         self._result.run_filters(**self._searchData['filters'])
 
+    def installPackage(self, index):
+        self._result.install_package(index)
+
+    def upgradePackage(self, index):
+        self.installPackage(index)
+
+    def removePackage(self, index):
+        self._result.remove_package(index)
+
     def _on_result_ready(self):
         self._count = self._result.count
         sort = self._searchData['sort']
