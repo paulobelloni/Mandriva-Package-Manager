@@ -99,6 +99,12 @@ class MdvPkgResult(QtCore.QObject):
         super(MdvPkgResult, self).__init__(parent)
         self._result = {}
         self.count = None
+        self._old_filters = {
+            'name': lambda: None,
+            'status': lambda: None,
+            'media': lambda: None,
+            'group': lambda: None,
+        }
         self._pkg_list = PackageList(self)
         signals = {
             'Package': self._on_package,
@@ -147,7 +153,10 @@ class MdvPkgResult(QtCore.QObject):
         }
         for f in filters:
             lists = filters[f]()
-            self._pkg_list.proxy.Filter(f, *lists)
+            olists = self._old_filters[f]()
+            if (lists != olists):
+                self._pkg_list.proxy.Filter(f, *lists)
+            self._old_filters[f] = filters[f]
         self._pkg_list.proxy.Size(reply_handler=self._on_size_reply,
                                   error_handler=self._on_size_error)
 
@@ -160,17 +169,12 @@ class MdvPkgResult(QtCore.QObject):
 
     def install_package(self, idx):
         """ Install package at idx. """
-        self._check_valid_request('install', idx)
+#        self._check_valid_request('install', idx)
 #        self._pkg_list.proxy.Install(idx)
-
-    def upgrade_package(self, idx):
-        """ Upgrade package at idx. """
-        self._check_valid_request('upgrade', idx)
-#        self._pkg_list.proxy.Upgrade(idx)
 
     def remove_package(self, idx):
         """ Remove package at idx. """
-        self._check_valid_request('remove', idx)
+#        self._check_valid_request('remove', idx)
 #        self._pkg_list.proxy.Remove(idx)
 
     def get_package(self, idx):
