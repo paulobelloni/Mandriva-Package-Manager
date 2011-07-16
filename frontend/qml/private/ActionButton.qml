@@ -22,6 +22,7 @@
 import QtQuick 1.0
 
 Item {
+    id: action_button
     property alias text:  button.text
     property alias color: foreground.color
     property alias fgOpacity: foreground.opacity
@@ -30,9 +31,12 @@ Item {
     property alias iconWidth: button.iconWidth
     property alias iconHeight: button.iconHeight
 
+    signal clicked
+
     Button {
         id: button
         anchors.fill: parent
+        Component.onCompleted: clicked.connect(action_button.clicked)
     }
 
     Rectangle {
