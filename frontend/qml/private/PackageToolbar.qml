@@ -34,7 +34,7 @@ Row {
 
         states: [
             State {
-                name: 'Upgrade'
+                name: 'Upgradable'
                 PropertyChanges {
                     target: upgrade_action
                     color: config._UPGRADE_BUTTON_BACKGROUND
@@ -43,6 +43,10 @@ Row {
                 }
             }
         ]
+
+        onClicked: {
+            mpmController.upgradePackage(target_view.currentPackage.index);
+        }
     }
     ActionButton {
         id: basic_action
@@ -64,7 +68,7 @@ Row {
                 }
             },
             State {
-                name: 'Upgrade'
+                name: 'Upgradable'
                 PropertyChanges {
                     target: basic_action
                     color: config._REMOVE_BUTTON_BACKGROUND
@@ -74,8 +78,17 @@ Row {
             },
             State {
                 name: 'Installed'
-                extend: 'Upgrade'
+                extend: 'Upgradable'
             }
         ]
+
+        onClicked: {
+            if (state == 'Not-Installed') {
+                mpmController.installPackage(target_view.currentPackage.index);
+            }
+            else if (state == 'Upgradable' || state == 'Installed') {
+                mpmController.removePackage(target_view.currentPackage.index);
+            }
+        }
     }
 }
