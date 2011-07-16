@@ -90,7 +90,7 @@ LayoutItem {
         property int _LIST_ITEM_HEIGHT: 50
         property int _MANAGE_BUTTON_WIDTH: 80
         property int _MANAGE_BUTTON_HEIGHT: 30
-        property int _STATUS_AREA_HEIGHT: 15
+        property int _STATUS_AREA_HEIGHT: 20
         property int _STATUS_BUTTON_RADIUS: 15
         property int _TOOLBARITEMS_WITH: 400
         property int _SEARCHBOX_WITH: 300
