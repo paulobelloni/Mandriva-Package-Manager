@@ -117,9 +117,12 @@ class DaemonProxy(QtCore.QObject):
         self.taskCount -= 1
         self.task_done.emit(task_id)
 
+    # This should be removed when mdvpkgd manages his life properly
     def release(self):
-        self._mainIface.Quit() # This should be removed when mdvpkgd manages his life properly
-        pass
+        try:
+            self._mainIface.Quit()
+        except:
+            pass   # Probably mdvpkgd is already dead
 
     def create_task(self, service, iface, *args):
         method = self._mainIface.get_dbus_method(service)
