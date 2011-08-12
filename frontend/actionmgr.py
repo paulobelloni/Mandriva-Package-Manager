@@ -131,9 +131,9 @@ class ActionManager(QtCore.QObject):
     def cancelAction(self):
         self._model.cancelAction(self._target.index)
 
-    @QtCore.Slot()
+    @QtCore.Slot(result=bool)
     def executeAction(self):
-        self._model.executeAction(self._target.index)
+        return self._model.executeAction(self._target.index)
 
     def _processActionRequest(self, target, actionType, request):
         if self._actionsAllowed:

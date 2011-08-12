@@ -120,7 +120,8 @@ class DaemonProxy(QtCore.QObject):
     # This should be removed when mdvpkgd manages his life properly
     def release(self):
         try:
-            self._mainIface.Quit()
+            #self._mainIface.Quit()
+            pass
         except:
             pass   # Probably mdvpkgd is already dead
 
@@ -217,8 +218,15 @@ class PackageListProxy(QtCore.QObject):
                              error_handler=self._on_async_error)
 
     def execute_action(self):
-        self._proxy.ProcessActions()
-        self._daemon.taskCount += 1
+        try:
+            self._proxy.ProcessActions()
+            self._daemon.taskCount += 1
+            return True
+        except dbus.exceptions.DBusException as e:
+            if e.get_dbus_name() == 'org.mandrivalinux.mdvpkg.AuthorizationFailed':
+                return False
+            else:
+                raise e
 
     def sort(self, key, reverse=False):
         self._proxy.Sort(key, reverse)

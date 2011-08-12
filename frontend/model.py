@@ -73,8 +73,11 @@ class PackageModel(QtCore.QAbstractListModel):
         self._packageList.cancel_action(index)
 
     def executeAction(self, index):
-        self._packageList.execute_action()
-        self.refreshModel(index)
+        if self._packageList.execute_action():
+            self.refreshModel(index)
+            return True
+        else:
+            return False
 
     def refreshModel(self, index = None):
         if self._last_count < self._packageList.count:

@@ -25,6 +25,11 @@ DialogTemplate {
     id: action_dialog
     property string executeLabel: ""
 
+    function clearStatus() {
+        actionMgr.cancelAction();
+        actionMgr.actionsAllowed = true;
+    }
+
     title: {
         var _text = '';
         if (actionMgr.type == 'INSTALL') {
@@ -43,11 +48,15 @@ DialogTemplate {
         return _text;
     }
     onClicked: {
-        if (label == action_dialog.executeLabel)
-            actionMgr.executeAction();
+        if (label == action_dialog.executeLabel) {
+            if (!actionMgr.executeAction()) {
+                dialog.show("AuthorizationDialog");
+                action_dialog.clearStatus();
+                return;
+            }
+        }
         else {
-            actionMgr.cancelAction();
-            actionMgr.actionsAllowed = true;
+            action_dialog.clearStatus();
         }
 
         dialog.hide();
