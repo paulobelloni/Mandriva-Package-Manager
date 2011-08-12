@@ -21,76 +21,33 @@
 ##
 import sys
 import os, errno
+
 import logging
-import locale
-locale.setlocale(locale.LC_ALL, '')
+logger = logging.getLogger(__name__)
 
 from PySide import QtGui, QtCore
 from PySide import QtDeclarative
 
 import frontend
-from model import packageModel
+from actionmgr import ActionManager
 
-logger = logging.getLogger(__name__)
+import platform
+archWordSize = int(platform.architecture()[0][:2])
+
+import locale
+locale.setlocale(locale.LC_ALL, '')
 
 
 class MPMcontroller(QtCore.QObject):
-    FILTER_MAP={
-        'category': 'categories',
-        'pattern': 'patterns',
-        'sort': 'sort',
-        'source': 'sources',
-        'statuses': 'statuses',
-    }
-    STATUS_MAP={
-        'Installed': ['installed'],
-        'Not installed': ['new'],
-        'Upgradable': ['upgrade'],
-        'In progress': ['installing', 'removing'],
-    }
-    SORT_MAP={
-        'Date': 'installtime',
-        'Name': 'name',
-        'Size': 'size',
-    }
 
     def __init__(self, rootContext, window):
         super(MPMcontroller, self).__init__()
         self._window = window
-        self._model = packageModel(self)
-        self._model.search(packageModel.DEFAULT_SEARCH)
-        rootContext.setContextProperty('packageModel', self._model)
+        self._actionMgr = ActionManager(self)
+        rootContext.setContextProperty('actionMgr', self._actionMgr)
 
-    @QtCore.Slot(QtCore.QObject)
-    def search(self, rawData):
-        filters = {}
-
-        value = rawData.property('pattern')
-        filters[MPMcontroller.FILTER_MAP['pattern']] = \
-            [value] if value else []
-
-        value = rawData.property('category')
-        filters[MPMcontroller.FILTER_MAP['category']] = \
-            [value] if value else []
-
-        value = rawData.property('source')
-        filters[MPMcontroller.FILTER_MAP['source']] = \
-            [value] if value else []
-
-        value = rawData.property('status')
-        value = MPMcontroller.STATUS_MAP.get(value)
-        filters[MPMcontroller.FILTER_MAP['statuses']] = \
-            value if value else []
-
-        value = rawData.property('sort')
-        value = MPMcontroller.SORT_MAP.get(value)
-        sort = (value, rawData.property('sortDirection') == 'up')
-
-        searchData = {
-            'filters': filters,
-            'sort'   : sort
-        }
-        self._model.search(searchData)
+    def release(self):
+        self._actionMgr.release()
 
     def setRootObject(self, root):
         self._rootObj = root
@@ -153,32 +110,6 @@ class MPMcontroller(QtCore.QObject):
         newPoint.setY(newPoint.y() - py)
         self._window.move(newPoint)
 
-    @QtCore.Slot(int)
-    def installPackage(self, index):
-        self._model.installPackage(index)
-
-    @QtCore.Slot(int)
-    def upgradePackage(self, index):
-        self._model.upgradePackage(index)
-
-    @QtCore.Slot(int)
-    def removePackage(self, index):
-        self._model.removePackage(index)
-
-    def _set_cursor(self, shape):
-        if not shape:
-            qt_shape = QtCore.Qt.ArrowCursor
-        else:
-            qt_shape = eval("QtCore." + shape)
-
-        self._window.setCursor(QtGui.QCursor(qt_shape))
-        self._cursor_changed.emit()
-
-    _cursor_changed = QtCore.Signal()
-
-    def _get_cursor(self):
-        return self._window.cursor()
-
     @QtCore.Slot(int, int)
     def setMinimumSize(self, width, height):
         self._window.setMinimumSize(width, height)
@@ -223,8 +154,26 @@ class MPMcontroller(QtCore.QObject):
     def getRootDir(self):
         return frontend.MPM_FRONTEND_DIR
 
+    @QtCore.Slot(result=int)
+    def getArchWordSize(self):
+        return archWordSize
+
+    def _get_cursor(self):
+        return self._window.cursor()
+
+    def _set_cursor(self, shape):
+        if not shape:
+            qt_shape = QtCore.Qt.ArrowCursor
+        else:
+            qt_shape = eval("QtCore." + shape)
+
+        self._window.setCursor(QtGui.QCursor(qt_shape))
+        self._nfy_cursor.emit()
+
+    _nfy_cursor = QtCore.Signal()
+
     cursor = QtCore.Property(str, _get_cursor,
-                        _set_cursor, notify=_cursor_changed)
+                        _set_cursor, notify=_nfy_cursor)
 
 
 def start():
@@ -249,13 +198,15 @@ def start():
     view.setWindowTitle("Mandriva Package Manager")
 
     rc = view.rootContext()
-    mpm_controller = MPMcontroller(rc, view)
-    rc.setContextProperty('mpmController', mpm_controller)
+    mpmController = MPMcontroller(rc, view)
+    rc.setContextProperty('mpmController', mpmController)
     view.setSource(mainQML)
-    mpm_controller.setRootObject(view.rootObject())
+    mpmController.setRootObject(view.rootObject())
 
     view.show()
     app.exec_()
+    mpmController.release()
+
 
 if __name__ == '__main__':
     start()

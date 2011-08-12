@@ -21,7 +21,7 @@
 ##            Paulo Belloni <paulo@mandriva.com>
 ##
 
-class MdvPkgError(Exception):
+class MdvPkgQtError(Exception):
     """ Exception for mdvpkg errors. """
 
     def __init__(self, code, message):
@@ -30,7 +30,7 @@ class MdvPkgError(Exception):
         self.message = message
 
 
-class OperationRequireUseServerCacheMode(MdvPkgError):
-    """ Exception to indicate invalid use of cached operations. """
+class AsynchronousCallError(MdvPkgQtError):
+    """ Exception to indicate error during DBUS asynchronous method calls. """
 
 

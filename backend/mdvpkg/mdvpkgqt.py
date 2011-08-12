@@ -20,17 +20,6 @@
 ## Author(s): J. Victor Martins <jvdm@mandriva.com>
 ##            Paulo Belloni <paulo@mandriva.com>
 ##
-##     NOTES:
-## (PBelloni) - Refactory to make it more QT oriented.
-##              Added DbusProxy, MdvPkgProxy and MdvPkgGroups
-##              classes. get_package is now asynchronous.
-##              Added qtobjectfactory (*) and class package
-##              hierarchy. Results is now kept on a
-##              dict, while still acquiring new data.
-##              Added excludeTechnicalItems.
-##              (*) It is substituted by package module
-##              due to some issues about inheritance we
-##              have found. It is under investigation.
 ##
 """ mdvpkg API for Mandriva Application Manager. """
 
@@ -42,7 +31,7 @@ from operator import attrgetter
 from sets import Set
 sys.path.append('/usr/share/mandriva/mdvpkg')
 import mdvpkg
-import exceptions
+from exceptions import AsynchronousCallError
 from package import Package
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -52,6 +41,11 @@ STATUS_NOT_INSTALLED = 'Not-Installed'
 STATUS_INSTALLED = 'Installed'
 STATUS_UPGRADABLE = 'Upgradable'
 STATUS_IN_PROGRESS = 'In-Progress'
+
+# Action step definitions:
+ACTION_DOWNLOAD_STEP = 'DOWNLOAD'
+ACTION_INSTALL_STEP = 'INSTALL'
+ACTION_REMOVE_STEP = 'REMOVE'
 
 # List of medias that are considered part of Mandriva's Software
 # source:
@@ -71,6 +65,7 @@ PACKAGE_DETAIL_ATTRIBUTES = (
     'installtime',
     'distepoch',
     'disttag',
+    'progress',
 #    'requires',
 #    'provides',
 #    'conflict',
@@ -92,53 +87,91 @@ class DbusProxy:
         return dbus.Interface(obj, interface)
 
 
-class MdvPkgResult(QtCore.QObject):
-    """ A result class for mdvpkg calls. """
+class DaemonProxy(QtCore.QObject):
 
     def __init__(self, parent):
-        super(MdvPkgResult, self).__init__(parent)
+        super(DaemonProxy, self).__init__(parent)
+        self.taskCount = 0
+        self.currentTask = None
+        self._mainIface = DbusProxy.createInterface()
+        signals = {
+            'TaskRunning': self._on_task_running,
+            'TaskProgress': self._on_task_progress,
+            'TaskDone': self._on_task_done,
+        }
+        for signal, slot in signals.iteritems():
+            self._mainIface.connect_to_signal(signal, slot)
+
+    task_started = QtCore.Signal(str)
+    task_progress = QtCore.Signal(str, int, int)
+    task_done = QtCore.Signal(str)
+
+    def _on_task_running(self, task_id):
+        self.currentTask = task_id
+        self.task_started.emit(task_id)
+
+    def _on_task_progress(self, task_id, count, total):
+        self.task_progress.emit(task_id, int(count), int(total))
+
+    def _on_task_done(self, task_id):
+        self.taskCount -= 1
+        self.task_done.emit(task_id)
+
+    def release(self):
+        self._mainIface.Quit() # This should be removed when mdvpkgd manages his life properly
+        pass
+
+    def create_task(self, service, iface, *args):
+        method = self._mainIface.get_dbus_method(service)
+        try:
+            path = method(args)
+            return DbusProxy.createInterface(iface, path)
+        except:
+            raise
+
+
+class PackageListProxy(QtCore.QObject):
+
+    def __init__(self, parent, daemon):
+        super(PackageListProxy, self).__init__(parent)
+        self._count = None
         self._result = {}
-        self.count = None
+        self._daemon = daemon
+        self._proxy = daemon.create_task('GetList', mdvpkg.PACKAGE_LIST_IFACE)
+        self._groups_map = None
+        self._populate_groups()
         self._old_filters = {
             'name': lambda: None,
             'status': lambda: None,
             'media': lambda: None,
             'group': lambda: None,
         }
-        self._pkg_list = PackageList(self)
         signals = {
+            'Error': self._on_error,
             'Package': self._on_package,
+            'DownloadStart': self._on_download_start,
+            'DownloadProgress': self._on_download_progress,
+            'InstallProgress': self._on_install_progress,
+            'RemoveStart': self._on_action_start,
+            'RemoveProgress': self._on_remove_progress,
         }
         for signal, slot in signals.iteritems():
-            self._pkg_list.proxy.connect_to_signal(signal, slot)
-
-    def __del__(self):
-        self.release()
+            self._proxy.connect_to_signal(signal, slot)
 
     def __iter__(self):
         for i in range(0, self.count):
             yield i, self.get_package(i)
 
-    result_ready = QtCore.Signal()
+    packages_removed = QtCore.Signal(int, int)
+    action_started = QtCore.Signal(QtCore.QObject, str)
+    download_progress = QtCore.Signal(QtCore.QObject, str, str, str, str, str)
+    action_step_progress = QtCore.Signal(QtCore.QObject, str, str, str, str)
 
-    def _buildMediaFilter(self, sources):
-        if not Set(sources).issubset(Set(('Mandriva', 'Community'))):
-            raise ValueError('Unknown source: (%s)' % sources)
-        filter_list = {True:[], False:[]}
-        includeMandriva = 'Mandriva' in sources
-        if sources:
-            filter_list[includeMandriva] = MANDRIVA_MEDIAS
-            filter_list[not includeMandriva] = []
-        return filter_list[True], filter_list[False]
-
-    def _buildGroupFilter(self, categories):
-        filter_list = []
-        if categories:
-            cat = categories[0]
-            if cat not in PackageList.groups.groups_map:
-                raise ValueError, 'Unknown category: (%s)' % cat
-            filter_list = list(PackageList.groups.groups_map[cat])
-        return filter_list, []
+    def release(self):
+        try:
+            self._proxy.Delete()
+        except:
+            pass   # Probably mdvpkgd is already dead
 
     def run_filters(self,
                     patterns=[],
@@ -155,53 +188,71 @@ class MdvPkgResult(QtCore.QObject):
             lists = filters[f]()
             olists = self._old_filters[f]()
             if (lists != olists):
-                self._pkg_list.proxy.Filter(f, *lists)
+                self._proxy.Filter(f, *lists)
             self._old_filters[f] = filters[f]
-        self._pkg_list.proxy.Size(reply_handler=self._on_size_reply,
-                                  error_handler=self._on_size_error)
+        self._refreshCount()
 
-    def release(self):
-        self._pkg_list.proxy.Delete()
-
-    def _check_valid_request(self, action, idx):
-        if idx < 0 or idx >= self.count:
-            raise ValueError, "Got invalid index (%d) for %s request" % (idx, action)
-
-    def install_package(self, idx):
-        """ Install package at idx. """
-#        self._check_valid_request('install', idx)
-#        self._pkg_list.proxy.Install(idx)
-
-    def remove_package(self, idx):
-        """ Remove package at idx. """
-#        self._check_valid_request('remove', idx)
-#        self._pkg_list.proxy.Remove(idx)
-
-    def get_package(self, idx):
-        """ Returns the result at idx. """
-        self._check_valid_request('get', idx)
-        package = self._get_stored_package(idx)
+    def get_package(self, index):
+        package = self._get_stored_package(index)
         if package is None:
-            package = self._create_package(idx)
-            self._store_package(package)
-        self._pkg_list.proxy.Get(idx, PACKAGE_DETAIL_ATTRIBUTES)
+            package = self._create_package(index)
+        try:
+            self._proxy.Get(index, PACKAGE_DETAIL_ATTRIBUTES)
+        except IndexError:
+            package = None  # Package was removed from list
         return package
-        
+
+    def install_package(self, index):
+        return self._proxy.Install(index)
+
+    def remove_package(self, index):
+        return self._proxy.Remove(index)
+
+    def cancel_action(self, index):
+        self._proxy.NoAction(index,
+                             reply_handler=lambda: None,
+                             error_handler=self._on_async_error)
+
+    def execute_action(self):
+        self._proxy.ProcessActions()
+        self._daemon.taskCount += 1
+
     def sort(self, key, reverse=False):
-        """ Ask mdvpkg to sort packages and returns iterator. """
-        self._pkg_list.proxy.Sort(key, reverse)
+        self._proxy.Sort(key, reverse)
 
-    def _create_package(self, idx):
-        return Package(self, idx)
+    def _buildMediaFilter(self, sources):
+        if not Set(sources).issubset(Set(('Mandriva', 'Community'))):
+            raise ValueError('Unknown source: (%s)' % sources)
+        filter_list = {True:[], False:[]}
+        includeMandriva = 'Mandriva' in sources
+        if sources:
+            filter_list[includeMandriva] = MANDRIVA_MEDIAS
+            filter_list[not includeMandriva] = []
+        return filter_list[True], filter_list[False]
 
-    def _store_package(self, package):
-        self._result[package.index] = package
+    def _buildGroupFilter(self, categories):
+        filter_list = []
+        if categories:
+            cat = categories[0]
+            if cat not in self._groups_map:
+                raise ValueError, 'Unknown category: (%s)' % cat
+            filter_list = list(self._groups_map[cat])
+        return filter_list, []
+
+    def _create_package(self, index):
+        self._result[index] = Package(self, index)
+        return self._result[index]
 
     def _store_package_data(self, index, data):
+        for key in data:
+            data[key] = unicode(data[key])
         self._result[index].set_data(**data)
 
-    def _get_stored_package(self, idx):
-        return self._result.get(idx)
+    def _get_stored_package(self, index):
+        return self._result.get(index)
+
+    def _on_error(self, code, message):
+        raise ValueError, "===> ERROR RECEIVED: Code=%s Message=%s" % (code, message)
 
     def _on_package(self, index, name, arch, mdvpkg_status, action, details):
         status = self._convert_status(mdvpkg_status)
@@ -210,12 +261,11 @@ class MdvPkgResult(QtCore.QObject):
         else:
             source = 'Community'
         group_folder = details['group'].split('/')[0]
-        for (category, folders_set) in PackageList.groups:
+        for (category, folders_set) in self._groups_map.iteritems():
             if group_folder in folders_set:
                 break
             else:
                 category = 'System'
-
         data = {
             'name' : name,
             'version' : details['version'],
@@ -233,10 +283,53 @@ class MdvPkgResult(QtCore.QObject):
             'distepoch' : details['distepoch'],
             'disttag' : details['disttag'],
             'action' : action,
+            'action_progress' : details['progress'],
         }
-        for key in data:
-            data[key] = unicode(data[key])
-        self._store_package_data(index, data)
+        self._store_package_data(int(index), data)
+
+    def _check_valid_signal(self, task_id, index):
+        if not self._valid_pa_signal(task_id):
+            return None
+        if isinstance(index, int):
+            package = self._result.get(index)
+        else:
+            package = self._create_package(None)
+            package.name = index[0]    # name
+            package.version = index[1] # version
+            package.release = index[2] # release
+            package.arch = index[3]    # arch
+        return package
+
+    def _on_download_start(self, task_id, index):
+        self._on_action_start(task_id, index, None, None)
+
+    def _on_download_progress(self, task_id, index, percent, total, eta, speed):
+        package = self._check_valid_signal(task_id, index)
+        if not package:
+            return
+        package.action_progress = float(percent)/100 * 0.5
+        self.download_progress.emit(package, ACTION_DOWNLOAD_STEP, task_id, total, eta, speed)
+
+    def _on_install_progress(self, *args):
+        progress_calc = lambda progress: 0.5 * (1.0 + progress)
+        self._on_action_progress(ACTION_INSTALL_STEP, progress_calc, *args)
+
+    def _on_remove_progress(self, *args):
+        self._on_action_progress(ACTION_REMOVE_STEP, lambda progress: progress, *args)
+
+    def _on_action_start(self, task_id, index, total, count):
+        package = self._check_valid_signal(task_id, index)
+        if not package:
+            return
+        self.action_started.emit(package, task_id)
+
+    def _on_action_progress(self, step, progress_calc, task_id, index, amount, total):
+        package = self._check_valid_signal(task_id, index)
+        if not package:
+            return
+        old_progress = package.action_progress
+        package.action_progress = progress_calc(float(amount)/float(total))
+        self.action_step_progress.emit(package, step, task_id, amount, total)
 
     def _convert_status(self, mdvpkg_status):
         if mdvpkg_status == 'new':
@@ -248,81 +341,45 @@ class MdvPkgResult(QtCore.QObject):
         else:
             return STATUS_IN_PROGRESS
 
-    def _on_size_reply(self, size):
-        self.count = int(size)
-        self.result_ready.emit()
+    def _populate_groups(self):
+        self._groups_map = {
+            'Accessories': set(('Accessibility',
+                               'Archiving',
+                               'Editors',
+                               'File tools',
+                               'Text tools')),
+            'Development': set(('Development',)),
+            'Education': set(('Education',)),
+            'Games': set(('Games', 'Toys')),
+            'Internet': set(('Networking', 'Communications')),
+            'Office': set(('Office', 'Publishing')),
+            'Multimedia': set(('Video', 'Sound', 'Graphics')),
+            'Sciences': set(('Sciences',)),
+            'System': set()
+        }
+        self._proxy.connect_to_signal('Group', self._on_group)
+        self._proxy.GetAllGroups()
 
-    def _on_size_error(self, error):
-        raise ValueError('Fail to get package list size: (%s)' % str(error))
+    def _on_group(self, group, count):
+        folder = group.split('/')[0]
+        for folder_set in self._groups_map.values():
+            if folder in folder_set:
+                return
+        self._groups_map['System'].add(folder)
 
+    def _on_async_error(self, error):
+        raise AsynchronousCallError(-1, 'Error on calling Process Actions: (%s)' % str(error))
 
-class MdvPkgProxy(QtCore.QObject):
-    taskFactory = None
+    def _valid_pa_signal(self, pa_id):
+        return pa_id == self._daemon.currentTask
 
-    class MdvTaskFactory():
+    # count property ---------------------------------------------
+    def _refreshCount(self):
+        self._count = int(self._proxy.Size())
 
-        def __init__(self):
-            self.mainIface = DbusProxy.createInterface()
+    def _get_count(self):
+        if not self._count or self._daemon.taskCount > 0:
+            self._refreshCount()
+        return self._count
 
-        def getIface(self, service, iface, *args):
-            """ Returns the d-bus interface object. """
-            method = self.mainIface.get_dbus_method(service)
-            try:
-                path = method(args)
-                return DbusProxy.createInterface(iface, path), path
-            except:
-                raise
-
-    def __init__(self, parent):
-        super(MdvPkgProxy, self).__init__(parent)
-        if MdvPkgProxy.taskFactory is None:
-            MdvPkgProxy.taskFactory = MdvPkgProxy.MdvTaskFactory()
-
-    def create_task(self, service, *args):
-        return MdvPkgProxy.taskFactory.getIface(service, mdvpkg.TASK_IFACE, *args)
-
-    def create_package_list(self, *args):
-        return MdvPkgProxy.taskFactory.getIface('GetList', mdvpkg.PACKAGE_LIST_IFACE, *args)
-
-class PackageList(MdvPkgProxy):
-    groups = None
-
-    class MdvPkgGroups():
-
-        def __init__(self, proxy):
-            """ Returns a new instance. """
-            self.groups_map = {
-                'Accessories': set(('Accessibility',
-                                   'Archiving',
-                                   'Editors',
-                                   'File tools',
-                                   'Text tools')),
-                'Development': set(('Development',)),
-                'Education': set(('Education',)),
-                'Games': set(('Games', 'Toys')),
-                'Internet': set(('Networking', 'Communications')),
-                'Office': set(('Office', 'Publishing')),
-                'Multimedia': set(('Video', 'Sound', 'Graphics')),
-                'Sciences': set(('Sciences',)),
-                'System': set()
-            }
-            proxy.connect_to_signal('Group', self._on_group)
-            proxy.GetAllGroups()
-
-        def __iter__(self):
-            for m in self.groups_map.iteritems():
-                yield m
-
-        def _on_group(self, group, count):
-            folder = group.split('/')[0]
-            for folder_set in self.groups_map.values():
-                if folder in folder_set:
-                    return
-            self.groups_map['System'].add(folder)
-
-    def __init__(self, parent, **filters):
-        super(PackageList, self).__init__(parent)
-        self.proxy, path = self.create_package_list()
-        self.uuid = path.split('/')[-1]
-        if PackageList.groups is None:
-            PackageList.groups = PackageList.MdvPkgGroups(self.proxy)
+    count = QtCore.Property(int, _get_count)

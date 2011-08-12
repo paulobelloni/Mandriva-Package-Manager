@@ -26,60 +26,81 @@ from PySide import QtCore
 
 import exceptions
 import frontend
-from backend.mdvpkg.mdvpkgqt import Package, MdvPkgResult
+from backend.mdvpkg.mdvpkgqt import Package, PackageListProxy
 
 logger = logging.getLogger(__name__)
 
-class packageModel(QtCore.QAbstractListModel):
+class PackageModel(QtCore.QAbstractListModel):
     COLUMNS = ('package',)
     DEFAULT_SEARCH = {'filters':{}, 'sort': None}
     NULL_PACKAGE=Package(None, 0)
 
-    def __init__(self, controller):
-        super(packageModel, self).__init__(controller)
-        self.setRoleNames(dict(enumerate(packageModel.COLUMNS)))
-        self._controller = controller
-        self._count = 0
+    def __init__(self, parent, taskMgr):
+        super(PackageModel, self).__init__(parent)
+        self.setRoleNames(dict(enumerate(PackageModel.COLUMNS)))
+        self._last_count = 0
         self._searchData = None
-        self._result = MdvPkgResult(self)
-        self._result.result_ready.connect(self._on_result_ready)
+        self._packageList = PackageListProxy(self, taskMgr)
+        self._packageList.action_started.connect(self.actionStarted)
+        self._packageList.download_progress.connect(self.downloadProgress)
+        self._packageList.action_step_progress.connect(self.actionStepProgress)
+
+    actionStarted = QtCore.Signal(QtCore.QObject, str)
+    downloadProgress = QtCore.Signal(QtCore.QObject, str, str, str, str, str)
+    actionStepProgress = QtCore.Signal(QtCore.QObject, str, str, str, str)
+
+    def release(self):
+        self._packageList.release()
 
     def search(self, searchData):
         if searchData == self._searchData:
             return
+        self.beginResetModel()
         self._searchData = searchData
-        self._result.run_filters(**self._searchData['filters'])
-
-    def installPackage(self, index):
-        self._result.install_package(index)
-
-    def upgradePackage(self, index):
-        self.installPackage(index)
-
-    def removePackage(self, index):
-        self._result.remove_package(index)
-
-    def _on_result_ready(self):
-        self._count = self._result.count
+        self._packageList.run_filters(**self._searchData['filters'])
         sort = self._searchData['sort']
         if  sort and sort[0]:
-            self._result.sort(*sort)
-        self._totalOfMatches_changed.emit()
-        self.modelReset.emit()
+            self._packageList.sort(*sort)
+        self.endResetModel()
 
-    _totalOfMatches_changed = QtCore.Signal()
+    def installPackage(self, index):
+        return self._packageList.install_package(index)
 
-    def _get_totalOfMatches(self):
-        return self._count
+    def removePackage(self, index):
+        return self._packageList.remove_package(index)
+
+    def cancelAction(self, index):
+        self._packageList.cancel_action(index)
+
+    def executeAction(self, index):
+        self._packageList.execute_action()
+        self.refreshModel(index)
+
+    def refreshModel(self, index = None):
+        if self._last_count < self._packageList.count:
+            self.modelReset.emit()
+        elif index >= 0:
+            if self._last_count > self._packageList.count:
+                self.beginRemoveRows(QtCore.QModelIndex(), index, self._last_count - 1)
+                self.endRemoveRows()
+            elif index < self._last_count:
+                self._packageList.get_package(index)
 
     def rowCount(self, parent=QtCore.QModelIndex()):
-        return self._count
+        count = self._packageList.count
+        if count != self._last_count:
+            self._last_count = count
+            self._nfy_count.emit()
+        return count
 
     def data(self, index, role):
-        if index.isValid() and role == packageModel.COLUMNS.index('package'):
+        if index.isValid() and role == PackageModel.COLUMNS.index('package'):
             idx = index.row()
-            return self._result.get_package(idx) or packageModel.NULL_PACKAGE
+            return self._packageList.get_package(idx) or PackageModel.NULL_PACKAGE
         return None
 
-    totalOfMatches = QtCore.Property(int, _get_totalOfMatches,
-                                        notify=_totalOfMatches_changed)
+    _nfy_count = QtCore.Signal()
+
+    count = QtCore.Property(int, rowCount, notify=_nfy_count)
+
+

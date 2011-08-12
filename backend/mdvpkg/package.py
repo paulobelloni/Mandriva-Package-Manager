@@ -23,6 +23,7 @@
 from PySide import QtCore
 
 class Package(QtCore.QObject):
+
     def __init__(self, parent, index):
         super(Package, self).__init__(parent)
         self._index = index
@@ -42,15 +43,15 @@ class Package(QtCore.QObject):
         self._distepoch = None
         self._disttag = None
         self._action = None
-        self._progress = 1.0
-        self._nfy_name.connect(self._nfy_fullname)
-        self._nfy_version.connect(self._nfy_fullname)
-        self._nfy_release.connect(self._nfy_fullname)
-        self._nfy_arch.connect(self._nfy_fullname)
+        self._action_progress = 1.0
 
     # Set attributes based on args -----
     def set_data(self, **kwargs):
-        for key, value in kwargs.iteritems():
+        for key, valueS in kwargs.iteritems():
+            if isinstance(self.__dict__['_'+key], float):
+                value = float(valueS)
+            else:
+                value = valueS
             if self.__dict__['_'+key] != value:
                 self.__dict__['_'+key] = value
                 eval('self._nfy_'+key+'.emit()')
@@ -59,7 +60,9 @@ class Package(QtCore.QObject):
     def _get_index(self):
         return self._index
 
-    index = QtCore.Property(int, _get_index)
+    _nfy_index = QtCore.Signal()
+
+    index = QtCore.Property(int, _get_index, notify=_nfy_index)
 
     # name attribute ------------
     def _set_name(self, value):
@@ -230,15 +233,6 @@ class Package(QtCore.QObject):
 
     installtime = QtCore.Property(unicode, _get_installtime, _set_installtime, notify=_nfy_installtime)
 
-    # fullname attribute ----------
-    def _get_fullname(self):
-        return "%s-%s-%s.%s" % (self.name, self.version, self.release,
-                                self.arch)
-
-    _nfy_fullname = QtCore.Signal()
-
-    fullname = QtCore.Property(unicode, _get_fullname, notify=_nfy_fullname)
-
     # distepoch attribute ------------
     def _set_distepoch(self, value):
         if (self._distepoch != value):
@@ -278,15 +272,15 @@ class Package(QtCore.QObject):
 
     action = QtCore.Property(unicode, _get_action, _set_action, notify=_nfy_action)
 
-    # progress attribute ------------
-    def _set_progress(self, value):
-        if (self._progress != value):
-            self._progress = value
-            self._nfy_progress.emit()
+    # action_progress attribute ------------
+    def _set_action_progress(self, value):
+        if (self._action_progress != value):
+            self._action_progress = value
+            self._nfy_action_progress.emit()
 
-    def _get_progress(self):
-        return self._progress
+    def _get_action_progress(self):
+        return self._action_progress
 
-    _nfy_progress = QtCore.Signal()
+    _nfy_action_progress = QtCore.Signal()
 
-    progress = QtCore.Property(float, _get_progress, _set_progress, notify=_nfy_progress)
+    action_progress = QtCore.Property(float, _get_action_progress, _set_action_progress, notify=_nfy_action_progress)
