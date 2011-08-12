@@ -1,6 +1,10 @@
 NEWS
 =========
 
+0.8.1
+- Changes were made to allow mpm to deal properly with the
+  new PolicyKit Authentication/Authorization process of mdvpkg;
+
 0.8.0
 - Now we have Install/Remove/Upgrade features; :) (*)
 - To deal with it some restructure were made and dialog boxes
@@ -11,6 +15,9 @@ NEWS
   its own shape. An overall progress bar is displayed on the
   statusbar. If you hover on it progress detail banner becomes
   visible;
+- Till mdvpkg become prepared to deal with external urpmi db
+  changes, mpm send a message to mdvpkg for it to kill itself
+  when mpm is closed;
 
 (*) NOTES:
     1) Due to some limitations on current version of mdvpkg,

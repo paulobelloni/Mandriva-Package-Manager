@@ -24,7 +24,7 @@ import logging
 
 __author__  = "Paulo Belloni <paulo@mandriva.com>"
 __state__   = "development"
-__version__ = "0.8.0"
+__version__ = "0.8.1"
 
 MANDRIVA_DATA_DIR = '/usr/share/mandriva'
 DEFAULT_MPM_DIR = '%s/mpm' % MANDRIVA_DATA_DIR
