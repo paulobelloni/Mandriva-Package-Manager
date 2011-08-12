@@ -21,7 +21,7 @@
 //
 import QtQuick 1.0
 
-Item {
+TargetViewDelegateTemplate {
     Image {
         id: item_status
 
@@ -42,7 +42,7 @@ Item {
         visible: source !== ""
         opacity: 0.9
         smooth: true
-        source: getImageSource(itemValue)
+        source: getImageSource(validate(itemModel.package.status))
         asynchronous: true
 
         //    HintArea {

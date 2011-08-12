@@ -22,12 +22,18 @@
 import QtQuick 1.0
 import components 1.0 as QDESK
 
-QDESK.QStyleItem {
+Item {
     id: splitter
     property int minimumY: 0
     property int maximumY: 0
+    property alias frameVisible: frame.visible
+    property alias handleAnchors: handle.anchors
 
-    elementType: "frame"
+    QDESK.QStyleItem {
+        id: frame
+        elementType: "frame"
+        anchors.fill: parent
+    }
     QDESK.QStyleItem {
         id: handle
         anchors.centerIn: parent

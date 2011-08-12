@@ -106,6 +106,7 @@ FocusScope{
     property alias hscrollbarHeight: hscrollbar.height
     property alias vscrollbarWidth: vscrollbar.width
     property alias treeWidth: tree.width
+    property alias count: tree.count
     // PBelloni - custom properties - end
 
     property variant model
@@ -138,12 +139,15 @@ FocusScope{
     default property alias header: tree.header
 
     signal activated
+    signal clicked(int rowIndex)
 
     Component {
         id: standardDelegate
         Item {
             property int implicitWidth: sizehint.paintedWidth + 4
+            height: item_text.paintedHeight + 4
             Text {
+                id: item_text
                 width: parent.width
                 anchors.margins: 4
                 anchors.left: parent.left
@@ -189,6 +193,12 @@ FocusScope{
             elementType: "itemrow"
             activeControl: itemAlternateBackground ? "alternate" : ""
             selected: itemSelected ? "true" : "false"
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onEntered: tree.currentIndex = rowIndex
+                onClicked: root.clicked(rowIndex)
+            }
         }
     }
 
@@ -277,6 +287,7 @@ FocusScope{
 
     function changeIndex(index, layout, lock) {
         index = index < 0 ? 0 : (index >= tree.count ? tree.count - 1: index);
+        if (!lock) lock = true;
         changePosition(index, layout, lock);
         tree.currentIndex = index;
     }
@@ -318,7 +329,7 @@ FocusScope{
         }
 
         onContentYChanged:  {
-            if (!blockUpdates) {
+            if (!vscrollbar.blocked) {
                 vscrollbar.value = tree.currentIndex;
             }
         }
@@ -360,7 +371,7 @@ FocusScope{
                         id: itemDelegateLoader
                         visible: header[index].visible
                         sourceComponent: itemDelegate
-                        property variant model: tree.model
+                        property variant itemModel: rowitem.itemModel
                         property variant itemProperty: header[index].property
 
                         width: header[index].contentWidth
@@ -378,6 +389,13 @@ FocusScope{
                     }
                 }
                 onWidthChanged: tree.contentWidth = width
+            }
+        }
+
+        Connections {
+            target: root.model ? root.model : null
+            onModelReset: {
+                vscrollbar.value = 0;
             }
         }
     }
@@ -599,6 +617,7 @@ FocusScope{
     ScrollBar {
         id: vscrollbar
         property int oldValue: value
+        property bool blocked: false
         orientation: Qt.Vertical
         // We cannot bind directly to tree.height due to binding loops so we have to redo the calculation here
         property int availableHeight : root.height - (hscrollbar.visible ? hscrollbar.height : 0) - tableColumn.height
@@ -612,7 +631,9 @@ FocusScope{
         anchors.topMargin: styleitem.style == "mac" ? tableColumn.height : 0
         onValueChanged: {
             if(!tree.blockUpdates) {
-                root.changePosition(value, ListView.Beginning, true);
+                blocked = true;
+                root.changeIndex(value, ListView.Beginning);
+                blocked = false;
             }
         }
         anchors.bottomMargin: hscrollbar.visible ? hscrollbar.height :  styleitem.frameoffset

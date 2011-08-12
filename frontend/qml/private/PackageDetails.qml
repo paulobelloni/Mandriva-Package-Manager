@@ -35,9 +35,9 @@ Rectangle {
             id: details_area
             anchors {
                 top: parent.top
-                topMargin: config._V_MARGIN_DETAILS
+                topMargin: config._T_MARGIN_DETAILS
                 bottom: parent.bottom
-                bottomMargin: config._V_MARGIN_DETAILS
+                bottomMargin: config._B_MARGIN_DETAILS
                 left: parent.left
                 leftMargin: config._L_MARGIN_DETAILS
                 right: parent.right
@@ -53,7 +53,6 @@ Rectangle {
                     anchors {
                         left: parent.left
                         top: parent.top
-                        topMargin: 0
                         bottom: parent.bottom
                     }
                     Column {
@@ -237,79 +236,62 @@ Rectangle {
                 }
                 Item {
                     id: right_panel
-                    height: childrenRect.height
+                    height: bottom_mark.y
                     anchors {
                         top: parent.top
-                        topMargin: 20
                         left: left_panel.right
                         leftMargin: 80
                         right: parent.right
                     }
-                    //            Item {
-                    //                id: right_panel_fullname_banner
-                    //                width: parent.width
-                    //                height: config._APP_FULLNAME_DETAILS_SIZE
-                    //            }
-                    Column {
-                        id: description_panel
-                        width: parent.width
-                        //                anchors {
-                        //                    top: right_panel_fullname_banner.bottom
-                        //                    topMargin: 10
-                        //                }
-                        states: [
-                            State {
-                                name: ""
-                                when: !details_area.visible
-                            },
-                            State {
-                                name: "more_clicked"
-                                PropertyChanges {
-                                    target: description_banner
-                                    height: description_element.paintedHeight
+                    QDESK.TabFrame {
+                        id:frame
+                        anchors.fill: parent
+                        focus: true
+                        position: "North"
+                        tabbar: QDESK.TabBar {
+                            parent: frame
+                            focus: true
+                        }
+                        QDESK.Tab {
+                            title: "Description"
+                            Flickable {
+                                id: description_banner
+                                clip: true
+                                width: parent.width
+                                height: parent.height
+                                Text {
+                                    id: description_element
+                                    anchors {
+                                        fill: parent
+                                        leftMargin: 4
+                                    }
+                                    property string loremIpsum:
+                                        qsTr("Under construction ...")
+                                    text: loremIpsum
+                                    wrapMode: Text.Wrap
+                                    //horizontalAlignment: Text.AlignJustify
                                 }
-                                PropertyChanges {
-                                    target: more_link
-                                    visible: false
-                                }
-                            }
-                        ]
-                        Flickable {
-                            id: description_banner
-                            clip: true
-                            width: parent.width
-                            height: config._DESCRIPTION_DETAILS_HEIGHT - 10
-                            Text {
-                                id: description_element
-                                anchors {
-                                    fill: parent
-                                    leftMargin: 4
-                                }
-                                property string loremIpsum:
-                                    qsTr("Displaying package description is under construction ...")
-                                text: loremIpsum
-                                wrapMode: Text.Wrap
-                                //horizontalAlignment: Text.AlignJustify
                             }
                         }
-                        Text {
-                            id: more_link
-                            visible: false //FIXME: Change it when ready
-                            anchors {
-                                right: description_banner.right
-                            }
-                            font {
-                                underline: true
-                                pixelSize: more_link.height
-                            }
-                            text: qsTr("More") + '...'
-                            width: paintedWidth
-                            height: 10
-                            color: "blue"
-                            MouseArea {
-                                id: more_link_mousearea
-                                anchors.fill: parent
-                                onClicked: description_panel.state = "more_clicked"
+                        QDESK.Tab {
+                            title: "Files"
+                            Flickable {
+                                id: files_banner
+                                clip: true
+                                width: parent.width
+                                height: parent.height
+                                Text {
+                                    id: files_element
+                                    anchors {
+                                        fill: parent
+                                        leftMargin: 4
+                                    }
+                                    property string loremIpsum:
+                                        qsTr("Under construction ...")
+                                    text: loremIpsum
+                                    wrapMode: Text.Wrap
+                                    //horizontalAlignment: Text.AlignJustify
+                                }
                             }
                         }
                     }

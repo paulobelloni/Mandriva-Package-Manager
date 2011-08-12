@@ -24,11 +24,11 @@ import components 1.0 as QDESK
 
 QDESK.Button {
     id: button
-    property int fontPixelSize: 10
     property int iconWidth: iconHeight
     property int iconHeight: height * 0.8
     property bool hover: containsMouse
     property variant style: Text.Normal
+    property string iconLabel
 
     label: Item {
         visible: button.iconSource != ""
@@ -38,7 +38,7 @@ QDESK.Button {
             spacing: 4
             Image {
                 source: button.iconSource
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenter: button.text? undefined : parent.verticalCenter
                 width: button.iconWidth
                 height: button.iconHeight
                 fillMode: Image.Stretch //mm Image should shrink if button is too small, depends on QTBUG-14957
@@ -47,8 +47,7 @@ QDESK.Button {
                 id: text
                 color: textColor
                 anchors.verticalCenter: parent.verticalCenter
-                text: button.text
-                font.pixelSize: button.fontPixelSize
+                text: button.iconLabel
                 style: button.style
                 horizontalAlignment: Text.AlignHCenter
             }

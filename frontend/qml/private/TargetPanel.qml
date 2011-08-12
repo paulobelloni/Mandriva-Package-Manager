@@ -20,6 +20,7 @@
 //
 //
 import QtQuick 1.0
+import components 1.0 as QDESK
 
 FocusScope {
     focus: true
@@ -30,45 +31,77 @@ FocusScope {
         hoverEnabled: true
         onEntered: forceActiveFocus()
     }
-
     TargetView {
         id: target_view
         width: parent.width
         anchors {
             top: parent.top
-            bottom: status_area.top
+            bottom: panel_separator.top
             bottomMargin: 0
+        }
+    }
+    Row {
+        width: parent.width
+        anchors {
+            top: panel_separator.bottom
+            bottom: status_area.top
+        }
+        PackageDetails {
+            id: details_area
+            visible: target_view.itemSelected
+            width: parent.width
+            height: parent.height
+        }
+        QDESK.TextArea {
+            id: output_area
+            width: parent.width
+            height: parent.height
+            frame: true
+            readOnly: true
+            wrapMode: TextEdit.NoWrap
+            text: qsTr("Under construction")
+        }
+    }
+    Rectangle {
+        anchors.fill: panel_separator
+        gradient: Gradient {
+            GradientStop {
+                position: 1.0
+                color: config._STATUSBAR_BACKGROUND_INITIAL_COLOR
+            }
+            GradientStop {
+                position: 0.0
+                color: config._STATUSBAR_BACKGROUND_FINAL_COLOR
+            }
         }
     }
     StatusArea {
         id: status_area
         width: parent.width
         height: config._STATUS_AREA_HEIGHT
+        anchors {
+            bottom: parent.bottom
+        }
+    }
+    TargetPanelSeparator {
+        id: panel_separator
+        width: parent.width
+        height: config._TARGET_PANEL_SEPARATOR_HEIGHT
         minimumY: config._LIST_ITEM_HEIGHT + target_view.headerHeight +
                   (target_view.hscrollbarVisible? target_view.hscrollbarHeight : 0)
         maximumY: parent.height - height
         Component.onCompleted: {
-            y = parent.height - height
-        }
-    }
-    PackageDetails {
-        id: details
-        visible: target_view.itemSelected
-        width: parent.width
-        anchors {
-            top: status_area.bottom
-            bottom: parent.bottom
+            y =  parent.height - height
         }
     }
 
     states: [
         State {
             name: "itemMarked"
-            when: target_view.itemMarked
+            when: target_view.itemMarked && target_view.doubleClicked
             PropertyChanges {
-                target: status_area
+                target: panel_separator
                 y: config._LIST_ITEM_HEIGHT + target_view.headerHeight
-                totalVisible: false
             }
         }
     ]

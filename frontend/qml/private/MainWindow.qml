@@ -151,7 +151,7 @@ Item {
                     right: parent.right
                 }
             }
-            Separator {
+            LeftPanelSeparator {
                 id: separator
                 x: left_panel.width
                 width: left_panel.width > 0 ? config._SEPARATOR_WIDTH : 0

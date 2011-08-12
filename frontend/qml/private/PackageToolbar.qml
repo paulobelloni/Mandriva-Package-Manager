@@ -40,12 +40,14 @@ Row {
                     color: config._UPGRADE_BUTTON_BACKGROUND
                     text: qsTr("UPGRADE")
                     visible: true
+                    enabled: true
                 }
             }
         ]
 
         onClicked: {
-            mpmController.upgradePackage(target_view.currentPackage.index);
+            actionMgr.upgradePackage(target_view.currentPackage);
+            dialog.show("ConfirmationDialog");
         }
     }
     ActionButton {
@@ -65,6 +67,7 @@ Row {
                     color: config._INSTALL_BUTTON_BACKGROUND
                     text: qsTr("INSTALL")
                     visible: true
+                    enabled: true
                 }
             },
             State {
@@ -74,21 +77,36 @@ Row {
                     color: config._REMOVE_BUTTON_BACKGROUND
                     text: qsTr("REMOVE")
                     visible: true
+                    enabled: true
                 }
             },
             State {
                 name: 'Installed'
                 extend: 'Upgradable'
+            },
+            State {
+                name: 'In-Progress'
+                PropertyChanges {
+                    target: basic_action
+                    visible: false
+                    enabled: false
+                }
             }
         ]
 
         onClicked: {
+            var ok;
             if (state == 'Not-Installed') {
-                mpmController.installPackage(target_view.currentPackage.index);
+                ok = actionMgr.installPackage(target_view.currentPackage);
             }
-            else if (state == 'Upgradable' || state == 'Installed') {
-                mpmController.removePackage(target_view.currentPackage.index);
+            else {  // (state == 'Upgradable' || state == 'Installed')
+                ok = actionMgr.removePackage(target_view.currentPackage);
             }
+
+            if (ok)
+                dialog.show("ConfirmationDialog");
+            else
+                dialog.show("RejectionDialog");
         }
     }
 }

@@ -22,23 +22,46 @@
 import QtQuick 1.0
 import components 1.0 as QDESK
 
-Item {
+TargetViewDelegateTemplate {
     Column {
         anchors.fill: parent
-        Text {
-            text: {
-                if (itemValue[0])
-                    return itemValue[0];
-                else
-                    return qsTr("waiting...");
-            }
+        Row {
             width: parent.width
             height: parent.height/2
-            elide: Text.ElideRight
-            verticalAlignment: Text.AlignVCenter
-            font {
-                pointSize: 12
-                bold: true
+            spacing: 10
+            Text {
+                id: name_text
+                property string name: validate(itemModel.package.name)
+                text: {
+                    if (name)
+                        return name;
+                    else
+                        return qsTr("waiting...");
+                }
+                height: parent.height
+                elide: Text.ElideRight
+                verticalAlignment: Text.AlignVCenter
+                font {
+                    pointSize: 12
+                    bold: true
+                }
+            }
+            Text {
+                text: {
+                    var pkg_ws = mpm.archToWordSize(validate(itemModel.package.arch));
+                    if (name_text.text && pkg_ws > 0 &&
+                            mpmController.getArchWordSize() != pkg_ws)
+                        return "(" + pkg_ws + " bits)";
+                    else
+                        return "";
+                }
+                height: parent.height
+                elide: Text.ElideRight
+                verticalAlignment: Text.AlignVCenter
+                color: config._ARCH_WORDSIZE_COLOR
+                font {
+                    pointSize: 8
+                }
             }
         }
         Item {
@@ -47,7 +70,7 @@ Item {
             Text {
                 visible: !progress.visible
                 anchors.fill: parent
-                text: itemValue[1]? itemValue[1] : ""
+                text: validate(itemModel.package.summary)
                 elide: Text.ElideRight
                 verticalAlignment: Text.AlignVCenter
             }
@@ -57,7 +80,7 @@ Item {
                 width: parent.width * 0.9
                 height: parent.height * 0.6
                 anchors.verticalCenter: parent.verticalCenter
-                value: itemValue[2]? itemValue[2] : 1.0
+                value: validate(itemModel.package.action_progress, 1.0)
             }
         }
     }

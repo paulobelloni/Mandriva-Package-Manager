@@ -36,7 +36,7 @@ LayoutItem {
     property string currentSortDirection: "up"
     property bool techItemsShown: false
     property real handlePosition: 0
-    property int totalOfItems: packageModel.totalOfMatches
+    property int totalOfItems: actionMgr.model.count
     property bool leftPanelHidden: false
     property bool statusFilterNotInstalledEnabled: false
     property bool statusFilterInstalledEnabled: false
@@ -82,8 +82,9 @@ LayoutItem {
         property int _BORDER_DETAILS_WIDTH: 2
         property int _ADJUST_MARGIN_DETAILS: 40 // when scrollbar is visible
         property int _L_MARGIN_DETAILS: 20
-        property int _R_MARGIN_DETAILS: 50
-        property int _V_MARGIN_DETAILS: 0
+        property int _R_MARGIN_DETAILS: 20
+        property int _T_MARGIN_DETAILS: 10
+        property int _B_MARGIN_DETAILS: 0
         property int _L_MARGIN_MANAGE: 20
         property int _R_MARGIN_MANAGE: 20
         property int _V_MARGIN_MANAGE: 20
@@ -104,11 +105,15 @@ LayoutItem {
         property int _LIST_ITEM_SOURCE_ICON_SIZE: 20
         property int _LIST_ITEM_STATUS_ICON_SIZE: 15
         property int _MINIMUM_TARGET_PANEL_HEIGHT: 50
+        property int _TARGET_PANEL_SEPARATOR_HEIGHT: _STATUS_AREA_HEIGHT
+        property int _AFFECTED_PACKAGES_ITEM_HEIGHT: 30
+        property int _STATUSBAR_PROGRESS_BAR_WIDTH: 100
 
         //---rates
         property real _GRID_ITEM_WIDTH_RATE: 5.3
         property real _ICON_STATUS_RATE: 3.5
         property real _FOLDER_RATION: 0.25
+        property real _STATUSBAR_PROGRESS_BAR_HEIGHT_RATE: 0.5
 
         //---colors
         property color _SEPARATOR_COLOR:  "#c9c9c8"
@@ -117,8 +122,8 @@ LayoutItem {
         property color _UPGRADE_BUTTON_BACKGROUND: "yellow"
         property color _REMOVE_BUTTON_BACKGROUND: "red"
         property color _STATUS_BORDER: "#ebebec"
-        property color _STATUS_FONT_COLOR: "#ffffff"
-        property color _BUTTON_FONT_COLOR: "#000000"
+        property color _STATUS_FONT_COLOR: "white"
+        property color _BUTTON_FONT_COLOR: "black"
         property color _TOOLBAR_BACKGROUND_COLOR: syspal.window
         property color _TOOLBAR_BORDER_COLOR: "transparent"//Qt.lighter(syspal.window)
         property color _TOOLBARITEM_FONT_COLOR: syspal.text
@@ -126,16 +131,19 @@ LayoutItem {
         property color _LEFTPANEL_BACKGROUND_COLOR: syspal.dark
         property color _LEFTPANEL_TOOLBAR_INITIAL_COLOR: "#6d6d6d"
         property color _LEFTPANEL_TOOLBAR_FINAL_COLOR: "#4d4d4d"
-        property color _LEFTPANEL_FONT_COLOR: "#ffffff"
+        property color _LEFTPANEL_FONT_COLOR: "white"
         property color _LEFTPANEL_MARKED_FONT_COLOR: syspal.highlightedText
         property color _LEFTPANEL_TITLE_FONT_COLOR: syspal.text
         property color _LEFTPANEL_HIGHLIGHT_COLOR: syspal.highlight
         property color _TARGETPANEL_BACKGROUND_COLOR: syspal.base
         property color _STATUSBAR_BACKGROUND_INITIAL_COLOR: "#6d6d6d"
         property color _STATUSBAR_BACKGROUND_FINAL_COLOR: "#4d4d4d"
-        property color _LIST_ITEM_NAME_COLOR: "#000000"
-        property color _LIST_ITEM_NAME_HICOLOR: "#000000"
-        property color _LIST_ITEM_DETAILS_COLOR: "#000000"
+        property color _LIST_ITEM_NAME_COLOR: "black"
+        property color _LIST_ITEM_NAME_HICOLOR: "black"
+        property color _LIST_ITEM_DETAILS_COLOR: "black"
+        property color _ARCH_WORDSIZE_COLOR: "darkorange"
+        property color _PROGRESS_PANEL_BACKGROUND_COLOR: syspal.highlight
+        property color _PROGRESS_PANEL_FONT_COLOR: "black" //syspal.highlightedText
 
         //---icons
         property url    _THEME_ICONS: "image://desktoptheme/"
@@ -148,6 +156,10 @@ LayoutItem {
         property string _SETTINGS_ICON: "preferences-system"
         property string _HISTORY_ICON: "document-open-recent"
         property string _CLOSE_ICON: "window-close"
+        property string _DIALOG_NO_ICON: "dialog-no"
+        property string _DIALOG_YES_ICON: "dialog-yes"
+        property string _DIALOG_CANCEL_ICON: "dialog-cancel"
+        property string _DIALOG_OK_ICON: "dialog-ok"
 
         //---files
         property string _LEFTPANEL_CONFIG_FILE: "LeftPanel.json"
@@ -181,7 +193,7 @@ LayoutItem {
 
     function runSearch() {
         //mpm.debugData();
-        mpmController.search(controllerData);
+        actionMgr.search(controllerData);
     }
 
     function setStatusSelected(status) {
@@ -210,7 +222,43 @@ LayoutItem {
         }
     }
 
-// FIXME: we need to use LayoutItem to limit resizing
+    function archToWordSize(arch) {
+        if (arch == 'i586')
+            return 32;
+        if (arch == 'x86_64')
+            return 64;
+        return 0;
+    }
+
+    function rejectionTypeToText(type) {
+        if (type == 'reject-install-unsatisfied')
+            return qsTr('Unsatisfied capability');
+        else if (type == 'reject-install-conflict')
+            return qsTr('Installation conflict');
+        else if (type == 'reject-install-rejected-dependency')
+            return qsTr('Rejected dependency');
+        else if (type == 'reject-remove-depends')
+            return qsTr('Removal conflict');
+        else if (type == 'reject-remove-basesystem')
+            return qsTr('Basesystem package');
+        return type;
+    }
+
+    function rejectionTypeToDetail(type) {
+        if (type == 'reject-install-unsatisfied')
+            return qsTr('requires');
+        else if (type == 'reject-install-conflict')
+            return qsTr('conflicts with');
+        else if (type == 'reject-install-rejected-dependency')
+            return qsTr('Rejected dependency');
+        else if (type == 'reject-remove-depends')
+            return qsTr('is required by');
+        else if (type == 'reject-remove-basesystem')
+            return qsTr('is part of the basesystem');
+        return type;
+    }
+
+    // FIXME: we need to use LayoutItem to limit resizing
     minimumSize: "800x550"
     preferredSize: "800x550"
     width: preferredSize.width
@@ -235,16 +283,16 @@ LayoutItem {
         return element.y + element.height;
     }
 
-    // Helper Component
-    Component {
+    // Helper Item
+    Item {
         id: null_item
-        Item {
-        }
     }
 
-    // Helper Model
-    ListModel {
-        id: null_model
+    // Helper Component
+    Component {
+        id: null_component
+        Item {
+        }
     }
 
     Timer {
@@ -264,6 +312,11 @@ LayoutItem {
 
     MPM.Hint {
         id: hint
+    }
+
+    MPM.Dialog {
+        id: dialog
+        anchors.fill: main_window
     }
 
     Component.onCompleted: {

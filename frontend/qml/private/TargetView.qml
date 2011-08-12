@@ -27,6 +27,7 @@ Item {
     id: target_view
     property bool itemMarked: false
     property bool itemSelected: table_view.currentIndex >= 0
+    property bool doubleClicked: false
     property variant currentPackage
     property alias headerHeight: table_view.headerHeight
     property alias hscrollbarHeight: table_view.hscrollbarHeight
@@ -47,13 +48,13 @@ Item {
             }
             Component {
                 id: version_delegate
-                TargetViewDelegateText {
+                TargetViewDelegateVersion {
                     visible: !target_view.itemMarked || !itemSelected
                 }
             }
             Component {
                 id: size_delegate
-                TargetViewDelegateText {
+                TargetViewDelegateSize {
                     visible: !target_view.itemMarked || !itemSelected
                 }
             }
@@ -76,11 +77,11 @@ Item {
         frame: false
         headerVisible: true
         alternateRowColor: true
-        sortIndicatorVisible: !itemMarked
-        forceHscrollbarHiding: itemMarked
-        forceVscrollbarHiding: itemMarked
-        model: packageModel
-        highlight: null_item
+        sortIndicatorVisible: !(itemMarked && target_view.doubleClicked)
+        forceHscrollbarHiding: itemMarked && target_view.doubleClicked
+        forceVscrollbarHiding: itemMarked && target_view.doubleClicked
+        model: actionMgr.model
+        highlight: null_component
         itemDelegate: delegates
         rowDelegate: QDESK.QStyleItem {
             id: rowstyle
@@ -108,14 +109,7 @@ Item {
             }
 
             MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: {
-                    if (!target_view.itemMarked)
-                        table_view.currentIndex = rowIndex;
-                    forceActiveFocus()
-                }
-                onClicked: {
+                function markItem() {
                     if (target_view.itemMarked && table_view.currentIndex == rowIndex) {
                         target_view.itemMarked = false;
                     }
@@ -125,19 +119,34 @@ Item {
                         }
                         else {
                             target_view.itemMarked = true;
-                            table_view.changeIndex(rowIndex, ListView.Beginning, true);
                         }
                     }
+                }
+
+                anchors.fill: parent
+                hoverEnabled: true
+                onEntered: {
+                    if (!target_view.itemMarked)
+                        table_view.currentIndex = rowIndex;
+                    forceActiveFocus()
+                }
+                onClicked: {
+                    target_view.doubleClicked = false;
+                    markItem();
+                }
+                onDoubleClicked: {
+                    target_view.doubleClicked = true;
+                    table_view.changeIndex(rowIndex, ListView.Beginning, true);
                 }
             }
 
             PackageToolbar {
                 id: package_toolbar
-                visible: target_view.itemMarked && itemSelected
+                visible: target_view.itemMarked && itemSelected && actionMgr.actionsAllowed
                 anchors {
                     verticalCenter: parent.verticalCenter
                     right: parent.right
-                    rightMargin: 10//column2.width - width
+                    rightMargin: 10 + table_view.vscrollbarWidth//column2.width - width
                 }
             }
         }
@@ -147,7 +156,6 @@ Item {
             index: 0
             resizeEnabled: false
             dragEnabled: !target_view.itemMarked
-            property: 'package.status'
             caption: ''
             width: 30
         }
@@ -156,7 +164,6 @@ Item {
             index: 1
             resizeEnabled: !target_view.itemMarked
             dragEnabled: !target_view.itemMarked
-            property: '[package.name, package.summary, package.progress]'
             caption: qsTr('Name / Summary')
             sortName: 'Name'
             width: table_view.treeWidth -
@@ -170,7 +177,6 @@ Item {
         MDV_QDESK.TableColumn {
             id: column2
             index: 2
-            property: 'package.version'
             caption: qsTr('Version')
             sortName: 'Version'
             width: 100
@@ -179,7 +185,6 @@ Item {
         MDV_QDESK.TableColumn {
             id: column3
             index: 3
-            property: 'mpmController.humanize_size(package.size, 1)'
             caption: qsTr('Size')
             sortName: 'Size'
             width: 100 + table_view.vscrollbarWidth

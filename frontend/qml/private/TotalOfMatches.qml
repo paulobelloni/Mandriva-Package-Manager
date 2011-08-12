@@ -30,7 +30,7 @@ Row {
         color: syspal.light
         opacity: 0.9
         font {
-            pointSize: 9
+            pointSize: 10
             italic: true
             bold: true
         }
@@ -39,10 +39,10 @@ Row {
     Text {
         text: qsTr("packages available")
         horizontalAlignment: Text.AlignHCenter
-        opacity: 0.8
+        opacity: 0.9
         color: syspal.light
         font {
-            pointSize: 9
+            pointSize: 10
             italic: true
         }
     }
