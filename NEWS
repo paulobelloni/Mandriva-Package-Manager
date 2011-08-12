@@ -1,6 +1,29 @@
 NEWS
 =========
 
+0.8.0
+- Now we have Install/Remove/Upgrade features; :) (*)
+- To deal with it some restructure were made and dialog boxes
+  were added;
+- Search has regex capabilities now;
+- Tableview interaction has been improved;
+- Statusbar is now fixed on the bottom and the splitter has
+  its own shape. An overall progress bar is displayed on the
+  statusbar. If you hover on it progress detail banner becomes
+  visible;
+
+(*) NOTES:
+    1) Due to some limitations on current version of mdvpkg,
+       only *one* action can be executed at a time. It should be
+       changed on future versions.
+    2) No automatic conflict resolution is available on current
+       mdvpkg version, neither resolution helper. So, the user
+       needs to deal with any kind of conflict resolution by
+       himself; *Be careful*
+    3) Automatic Media update is not available either, so it's
+       up to the user to make such updater;
+       (as root, use 'urpmi.update -a' to update all medias)
+
 0.7.2
 - Modifies the way filters are handled in the backend to only
   call PackageList's Filter method for modified parameters;
