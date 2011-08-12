@@ -120,8 +120,7 @@ class DaemonProxy(QtCore.QObject):
     # This should be removed when mdvpkgd manages his life properly
     def release(self):
         try:
-            #self._mainIface.Quit()
-            pass
+            self._mainIface.Quit()
         except:
             pass   # Probably mdvpkgd is already dead
 
