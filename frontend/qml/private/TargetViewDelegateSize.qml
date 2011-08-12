@@ -21,10 +21,11 @@
 //
 import QtQuick 1.0
 
-Text {
-    width: parent.width
-    height: parent.height
-    text: itemValue? itemValue : ""
-    elide: Text.ElideRight
-    verticalAlignment: Text.AlignVCenter
+TargetViewDelegateTemplate {
+    Text {
+        anchors.fill: parent
+        text: mpmController.humanize_size(validate(itemModel.package.size, 0), 1)
+        elide: Text.ElideRight
+        verticalAlignment: Text.AlignVCenter
+    }
 }
