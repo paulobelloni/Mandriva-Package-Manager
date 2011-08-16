@@ -1,6 +1,10 @@
 NEWS
 =========
 
+0.8.2
+- Just adds icons to MPM as a Desktop application. Thanks to 
+  UI Design team from Rosa Labs. :)
+
 0.8.1
 - Changes were made to allow mpm to deal properly with the
   new PolicyKit Authentication/Authorization process of mdvpkg;
