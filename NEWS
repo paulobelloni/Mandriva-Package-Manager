@@ -1,6 +1,10 @@
 NEWS
 =========
 
+0.8.3
+- Adds exception treatment to expose to the user when mdvpkgd
+  is not responding;
+
 0.8.2
 - Just adds icons to MPM as a Desktop application. Thanks to 
   UI Design team from Rosa Labs. :)
