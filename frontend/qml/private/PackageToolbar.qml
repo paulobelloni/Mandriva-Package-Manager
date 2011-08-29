@@ -47,7 +47,7 @@ Row {
 
         onClicked: {
             actionMgr.upgradePackage(target_view.currentPackage);
-            dialog.show("ConfirmationDialog");
+            dialog.showIt("ConfirmationDialog");
         }
     }
     ActionButton {
@@ -104,9 +104,9 @@ Row {
             }
 
             if (ok)
-                dialog.show("ConfirmationDialog");
+                dialog.showIt("ConfirmationDialog");
             else
-                dialog.show("RejectionDialog");
+                dialog.showIt("RejectionDialog");
         }
     }
 }

@@ -20,9 +20,8 @@
 ##
 ##
 
-OTHER_FILES +=  mdvpkgqt.py \
-                exceptions.py \
-                __init__.py \
+OTHER_FILES +=  __init__.py \
+                mdvpkgqt.py \
                 package.py
 
 include(../../mpm.pri)

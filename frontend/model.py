@@ -24,7 +24,6 @@ import sys
 import logging
 from PySide import QtCore
 
-import exceptions
 import frontend
 from backend.mdvpkg.mdvpkgqt import Package, PackageListProxy
 

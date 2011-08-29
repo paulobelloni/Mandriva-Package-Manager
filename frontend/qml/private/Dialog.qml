@@ -23,12 +23,14 @@ import QtQuick 1.0
 
 FocusScope {
     id: dialog
+    objectName: "dialog"
+
     function _setLayout(component, _visible) {
         panel.source = component? component + ".qml" : "";
         dialog.visible = _visible;
     }
 
-    function show(component) {
+    function showIt(component) {         // 'show' seems to be overriden if used outside QML
         actionMgr.actionsAllowed = false;
         _setLayout(component, true);
         forceActiveFocus();

@@ -25,10 +25,11 @@ import os, errno
 import logging
 logger = logging.getLogger(__name__)
 
-from PySide import QtGui, QtCore
-from PySide import QtDeclarative
+from PySide import QtCore, QtGui, QtDeclarative
+from PySide.QtCore import QObject
 
 import frontend
+from exceptions import FinalException, ExceptionWrapper
 from actionmgr import ActionManager
 
 import platform
@@ -38,19 +39,18 @@ import locale
 locale.setlocale(locale.LC_ALL, '')
 
 
-class MPMcontroller(QtCore.QObject):
+class MPMcontroller(QObject):
 
-    def __init__(self, rootContext, window):
+    def __init__(self, window):
         super(MPMcontroller, self).__init__()
         self._window = window
         self._actionMgr = ActionManager(self)
-        rootContext.setContextProperty('actionMgr', self._actionMgr)
+        rc = self._window.rootContext()
+        rc.setContextProperty('mpmController', self)
+        rc.setContextProperty('actionMgr', self._actionMgr)
 
     def release(self):
         self._actionMgr.release()
-
-    def setRootObject(self, root):
-        self._rootObj = root
 
     @QtCore.Slot(str, str)
     def store_config(self, file, data):
@@ -177,12 +177,6 @@ class MPMcontroller(QtCore.QObject):
 
 
 def start():
-    mainQML = '%s/%s' % (frontend.MPM_QML_DIR,
-                        os.path.basename(__file__.replace('.py', '.qml')))
-    if not os.path.exists(mainQML):
-        logger.critical('%s: "%s"' % (qsTr('QML file not found'), mainQML))
-        quit()
-
     app = QtGui.QApplication(sys.argv)
     lang = locale.getlocale()[0]
     if lang != frontend.MPM_DEFAULT_LANG:
@@ -197,15 +191,21 @@ def start():
     view.setResizeMode(QtDeclarative.QDeclarativeView.SizeRootObjectToView)
     view.setWindowTitle("Mandriva Package Manager")
 
-    rc = view.rootContext()
-    mpmController = MPMcontroller(rc, view)
-    rc.setContextProperty('mpmController', mpmController)
-    view.setSource(mainQML)
-    mpmController.setRootObject(view.rootObject())
+    try:
+        mpmController = MPMcontroller(view)
+    except Exception as e:
+        raise ExceptionWrapper(e)
+    else:
+        mainQML = '%s/%s' % (frontend.MPM_QML_DIR,
+                            os.path.basename(__file__.replace('.py', '.qml')))
+        if not os.path.exists(mainQML):
+            logger.critical("'%s' not found!" % mainQML)
+            raise FinalException("'%s' not found!" % mainQML)
 
-    view.show()
-    app.exec_()
-    mpmController.release()
+        view.setSource(mainQML)
+        view.show()
+        app.exec_()
+        mpmController.release()
 
 
 if __name__ == '__main__':

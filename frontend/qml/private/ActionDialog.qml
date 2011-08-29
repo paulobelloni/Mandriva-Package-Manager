@@ -50,7 +50,7 @@ DialogTemplate {
     onClicked: {
         if (label == action_dialog.executeLabel) {
             if (!actionMgr.executeAction()) {
-                dialog.show("AuthorizationDialog");
+                dialog.showIt("AuthorizationDialog");
                 action_dialog.clearStatus();
                 return;
             }

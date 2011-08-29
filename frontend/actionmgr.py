@@ -24,7 +24,6 @@ import sys
 import logging
 from PySide import QtCore
 
-import exceptions
 logger = logging.getLogger(__name__)
 
 from taskmgr import TaskManager
@@ -33,6 +32,11 @@ from acceptedmodel import AcceptedPackageModel
 from rejectedmodel import RejectedPackageModel
 
 class ActionManager(QtCore.QObject):
+    ACTION_REQUEST={
+        'INSTALL' : 'installPackage',
+        'UPGRADE' : 'installPackage',
+        'REMOVE' : 'removePackage',
+    }
     FILTER_MAP={
         'category': 'categories',
         'pattern': 'patterns',
@@ -114,18 +118,15 @@ class ActionManager(QtCore.QObject):
 
     @QtCore.Slot(QtCore.QObject, result=bool)
     def installPackage(self, target):
-        return self._processActionRequest(target, 'INSTALL',
-                                self._model.installPackage)
+        return self._processActionRequest(target, 'INSTALL')
 
     @QtCore.Slot(QtCore.QObject, result=bool)
     def upgradePackage(self, target):
-        return self._processActionRequest(target, 'UPGRADE',
-                                self._model.installPackage)
+        return self._processActionRequest(target, 'UPGRADE')
 
     @QtCore.Slot(QtCore.QObject, result=bool)
     def removePackage(self, target):
-        return self._processActionRequest(target, 'REMOVE',
-                                self._model.removePackage)
+        return self._processActionRequest(target, 'REMOVE')
 
     @QtCore.Slot()
     def cancelAction(self):
@@ -135,10 +136,11 @@ class ActionManager(QtCore.QObject):
     def executeAction(self):
         return self._model.executeAction(self._target.index)
 
-    def _processActionRequest(self, target, actionType, request):
+    def _processActionRequest(self, target, actionType):
         if self._actionsAllowed:
             self._type = actionType
             self._target = target
+            request = getattr(self._model, ActionManager.ACTION_REQUEST[actionType])
             result = request(target.index)
             self._toInstall, self._toRemove = \
                     [ AcceptedPackageModel(self, pkg) for pkg in result[:2] ]

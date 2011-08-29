@@ -23,16 +23,16 @@
 ##
 """ mdvpkg API for Mandriva Application Manager. """
 
+import sys
 import dbus
 import dbus.mainloop.glib
 from PySide import QtCore
-import sys
 from operator import attrgetter
 from sets import Set
-sys.path.append('/usr/share/mandriva/mdvpkg')
 import mdvpkg
-from exceptions import AsynchronousCallError
 from package import Package
+from frontend.exceptions import MPMException, AsynchronousCallError, AuthorizationFailed
+from frontend.exceptions import NoServerResponse, DBusExceptionWrapper, ExceptionWrapper
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
@@ -83,8 +83,30 @@ class DbusProxy:
     @staticmethod
     def createInterface(interface = mdvpkg.IFACE,
                         path = mdvpkg.PATH):
-        obj = DbusProxy.bus.get_object(mdvpkg.SERVICE, path)
-        return dbus.Interface(obj, interface)
+        try:
+            obj = DbusProxy.bus.get_object(mdvpkg.SERVICE, path)
+            return dbus.Interface(obj, interface)
+        except dbus.exceptions.DBusException as e:
+            raise DBusExceptionWrapper(e)
+        except Exception as e:
+            raise ExceptionWrapper(e)
+
+    @staticmethod
+    def call_server_method(method, *args):
+        try:
+            return method(*args)
+        except dbus.exceptions.DBusException as e:
+            if e.get_dbus_name() in \
+                ('org.freedesktop.DBus.Error.NoReply',
+                 'org.freedesktop.DBus.Error.NoServer',
+                 'org.freedesktop.DBus.Error.ServiceUnknown'):
+                 raise NoServerResponse(e)
+            elif e.get_dbus_name() == 'org.mandrivalinux.mdvpkg.AuthorizationFailed':
+                raise AuthorizationFailed(e)
+            else:
+                raise DBusExceptionWrapper(e)
+        except Exception as e:
+            raise ExceptionWrapper(e)
 
 
 class DaemonProxy(QtCore.QObject):
@@ -100,7 +122,7 @@ class DaemonProxy(QtCore.QObject):
             'TaskDone': self._on_task_done,
         }
         for signal, slot in signals.iteritems():
-            self._mainIface.connect_to_signal(signal, slot)
+            self._call_server_method('connect_to_signal', signal, slot)
 
     task_started = QtCore.Signal(str)
     task_progress = QtCore.Signal(str, int, int)
@@ -125,12 +147,13 @@ class DaemonProxy(QtCore.QObject):
             pass   # Probably mdvpkgd is already dead
 
     def create_task(self, service, iface, *args):
-        method = self._mainIface.get_dbus_method(service)
-        try:
-            path = method(args)
-            return DbusProxy.createInterface(iface, path)
-        except:
-            raise
+        method = self._call_server_method('get_dbus_method', service)
+        path = DbusProxy.call_server_method(method, *args)
+        return DbusProxy.createInterface(iface, path)
+
+    def _call_server_method(self, name, *args):
+        method = getattr(self._mainIface, name)
+        return DbusProxy.call_server_method(method, *args)
 
 
 class PackageListProxy(QtCore.QObject):
@@ -159,7 +182,7 @@ class PackageListProxy(QtCore.QObject):
             'RemoveProgress': self._on_remove_progress,
         }
         for signal, slot in signals.iteritems():
-            self._proxy.connect_to_signal(signal, slot)
+            self._call_server_method('connect_to_signal', signal, slot)
 
     def __iter__(self):
         for i in range(0, self.count):
@@ -191,7 +214,7 @@ class PackageListProxy(QtCore.QObject):
             lists = filters[f]()
             olists = self._old_filters[f]()
             if (lists != olists):
-                self._proxy.Filter(f, *lists)
+                self._call_server_method('Filter', f, *lists)
             self._old_filters[f] = filters[f]
         self._refreshCount()
 
@@ -200,16 +223,16 @@ class PackageListProxy(QtCore.QObject):
         if package is None:
             package = self._create_package(index)
         try:
-            self._proxy.Get(index, PACKAGE_DETAIL_ATTRIBUTES)
+            self._call_server_method('Get', index, PACKAGE_DETAIL_ATTRIBUTES)
         except IndexError:
             package = None  # Package was removed from list
         return package
 
     def install_package(self, index):
-        return self._proxy.Install(index)
+        return self._call_server_method('Install', index)
 
     def remove_package(self, index):
-        return self._proxy.Remove(index)
+        return self._call_server_method('Remove', index)
 
     def cancel_action(self, index):
         self._proxy.NoAction(index,
@@ -218,21 +241,23 @@ class PackageListProxy(QtCore.QObject):
 
     def execute_action(self):
         try:
-            self._proxy.ProcessActions()
+            self._call_server_method('ProcessActions')
             self._daemon.taskCount += 1
+        except AuthorizationFailed as e:
+            return False
+        else:
             return True
-        except dbus.exceptions.DBusException as e:
-            if e.get_dbus_name() == 'org.mandrivalinux.mdvpkg.AuthorizationFailed':
-                return False
-            else:
-                raise e
 
     def sort(self, key, reverse=False):
-        self._proxy.Sort(key, reverse)
+        self._call_server_method('Sort', key, reverse)
+
+    def _call_server_method(self, name, *args):
+        method = getattr(self._proxy, name)
+        return DbusProxy.call_server_method(method, *args)
 
     def _buildMediaFilter(self, sources):
         if not Set(sources).issubset(Set(('Mandriva', 'Community'))):
-            raise ValueError('Unknown source: (%s)' % sources)
+            raise MPMException("Unknown source", str(sources))
         filter_list = {True:[], False:[]}
         includeMandriva = 'Mandriva' in sources
         if sources:
@@ -245,7 +270,7 @@ class PackageListProxy(QtCore.QObject):
         if categories:
             cat = categories[0]
             if cat not in self._groups_map:
-                raise ValueError, 'Unknown category: (%s)' % cat
+                raise MPMException("Unknown category", category)
             filter_list = list(self._groups_map[cat])
         return filter_list, []
 
@@ -262,7 +287,7 @@ class PackageListProxy(QtCore.QObject):
         return self._result.get(index)
 
     def _on_error(self, code, message):
-        raise ValueError, "===> ERROR RECEIVED: Code=%s Message=%s" % (code, message)
+        raise SignalError(str(code), message)
 
     def _on_package(self, index, name, arch, mdvpkg_status, action, details):
         status = self._convert_status(mdvpkg_status)
@@ -367,8 +392,8 @@ class PackageListProxy(QtCore.QObject):
             'Sciences': set(('Sciences',)),
             'System': set()
         }
-        self._proxy.connect_to_signal('Group', self._on_group)
-        self._proxy.GetAllGroups()
+        self._call_server_method('connect_to_signal', 'Group', self._on_group)
+        self._call_server_method('GetAllGroups')
 
     def _on_group(self, group, count):
         folder = group.split('/')[0]
@@ -378,14 +403,14 @@ class PackageListProxy(QtCore.QObject):
         self._groups_map['System'].add(folder)
 
     def _on_async_error(self, error):
-        raise AsynchronousCallError(-1, 'Error on calling Process Actions: (%s)' % str(error))
+        raise DBusExceptionWrapper(error)
 
     def _valid_pa_signal(self, pa_id):
         return pa_id == self._daemon.currentTask
 
     # count property ---------------------------------------------
     def _refreshCount(self):
-        self._count = int(self._proxy.Size())
+        self._count = int(self._call_server_method('Size'))
 
     def _get_count(self):
         if not self._count or self._daemon.taskCount > 0:
